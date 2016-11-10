@@ -1,0 +1,29 @@
+{% extends 'menu.html' %}
+{% block header %}
+<title>Cadastrar ocorrência</title>
+<link rel='stylesheet' type='text/css' href='static/cadastro-ocorrencia.css'>
+{% endblock %}
+
+{% block content %}
+<form action='/' method="POST">
+    <div>
+        <p>CPF</p>
+        <input name='CPF' type='text'>
+    </div>
+    <div>
+        <p>Ocorrência</p>
+        <input name='ocorrencia' type='text'>
+    </div>
+    <div>
+        <p>Data da ocorrência</p>
+        <input name='data' type='text'>
+    </div>
+    <div>
+        <p>Descrição</p>
+        <input name='descricao' type='text'>
+    </div>
+    <div>
+        <input type='submit' value='Cadastrar' class='button'>
+    </div>
+</form>
+{% endblock %}

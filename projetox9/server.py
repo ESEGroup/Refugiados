@@ -1,13 +1,12 @@
 import os
-import sqlite3
-from flask import Flask
+from projetox9 import app
 
-app = Flask(__name__)
+from .views import Views
 
-app.config.update(dict(
-    DATABASE=os.path.join(app.root_path, 'projetox9.db'),
-    SECRET_KEY='<dev_secret_key>',
-    USERNAME='<username>',
-    PASSWORD='<password>'
-))
-app.config.from_envvar('SETTINGS', silent=True)
+class Server:
+    def __init__(self):
+        self.views = Views()
+
+if __name__ == "__main__":
+    app.run(debug=True)
+

@@ -1,6 +1,13 @@
 from projetox9 import app
-from flask import render_template
+from .api import Api
+from flask import render_template, request
 
-@app.route('/')
-def home():
-    return render_template('home.html')
+class Views:
+    def __init__(self):
+        self.api = Api()
+
+        @app.route('/', methods=['GET', 'POST'])
+        def home():
+            if (not request.form):
+                return render_template('cadastro-ocorrencia.html')
+            return render_template('home.html', CPF=request.form["CPF"])

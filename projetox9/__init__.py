@@ -1,2 +1,5 @@
-from .server import app
-import projetox9.views
+from flask import Flask
+app = Flask(__name__)
+
+from .server import Server
+server = Server()
