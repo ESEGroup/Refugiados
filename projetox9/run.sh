@@ -1,2 +1,0 @@
-#!/bin/bash
-env FLASK_APP=server.py flask run
