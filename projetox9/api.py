@@ -7,6 +7,9 @@ class Api:
     def __init__(self):
         self.models = Models()
 
+    def get_occurrences(self):
+        pass
+
     def get_info_person(self, CPF):
         base_url = str(config.FakeSiga)
         path = '/api/Dados/findOne?filter={"where":{"CPF":"' + CPF + '"}}'

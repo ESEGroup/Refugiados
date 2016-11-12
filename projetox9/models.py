@@ -25,3 +25,11 @@ class Models:
         def __init__(self, CPF, name):
             super().__init__(CPF, name)
 
+    class Occurrence:
+        def __init__(self, CPF, name, date, occurrence, description, lat, lon):
+            self.CPF = CPF
+            self.name = name
+            self.date = date
+            self.occurrence = occurrence
+            self.local = (lat, lon)
+            self.description = description

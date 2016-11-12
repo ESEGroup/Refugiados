@@ -1,11 +1,3 @@
-#content form {
-    width: 30%;
-    margin: 0 auto;
-    background-color: #ccc;
-    border-radius: 2px;
-    padding: 15px; 3%;
-}
-
 #content form > div > input {
     width: 50%;
 }
