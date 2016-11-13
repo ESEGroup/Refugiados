@@ -2,6 +2,10 @@
 from os import urandom
 import binascii
 
+class Status:
+    NOT_RESOLVED = 0
+    RESOLVED = 1
+
 class Models:
     class User:
         is_employee = False
@@ -39,6 +43,9 @@ class Models:
             self.local = (lat, lng)
             self.place_name = place_name
             self.description = description
+            self.status = Status.NOT_RESOLVED
+            self.feedback_date = None
+            self.feedback = None
             self.protocol_number = str(binascii.hexlify(urandom(5)).upper())
 
         def __str__(self):

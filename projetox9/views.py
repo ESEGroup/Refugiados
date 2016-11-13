@@ -8,10 +8,13 @@ class Views:
     @app.route('/', methods=['GET', 'POST'])
     def home():
         if (request.method == "GET"):
-            return render_template('create-occurrence.html', googlemaps_autocomplete_key=Config.googlemaps_autocomplete_key)
+            if (request.args.get("p")):
+                data = Views.api.get_occurrence(request.args.get("p"))
+            else:
+                return render_template('create-occurrence.html', googlemaps_autocomplete_key=Config.googlemaps_autocomplete_key)
         else:
             data = Views.api.set_occurrence(request.form["CPF"], request.form["occurrence"], request.form["date"], request.form["description"], request.form["lat"], request.form["lng"], request.form["place_name"])
-            return render_template('occurrence.html', CPF=request.form["CPF"])
+        return render_template('occurrence.html', protocol_number=data.protocol_number, date=data.date.split(" ")[0], time=data.date.split(" ")[1], occurrence=data.occurrence, place_name=data.place_name, description=data.description, feedback_date=data.feedback_date, feedback=data.feedback, CPF=request.form["CPF"])
 
     @app.route('/login', methods=['GET', 'POST'])
     def login():
