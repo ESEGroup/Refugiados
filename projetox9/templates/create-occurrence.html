@@ -4,16 +4,33 @@
 <link rel='stylesheet' type='text/css' href='static/css/form.css'>
 <link rel='stylesheet' type='text/css' href='static/css/create-occurrence.css'>
 <script src="static/js/flatpickr.min.js"></script>
+<script src="static/js/utils.js"></script>
 <script src="static/js/create-occurrence.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key={{googlemaps_autocomplete_key}}&libraries=places&callback=init_map" async defer></script>
 <link rel="stylesheet" type='text/css' href="static/css/flatpickr.min.css">
 {% endblock %}
 
 {% block content %}
-<form action='/' method="POST">
+<form action='/occurrence' method='GET'>
+    <h1>Checar status de ocorrência</h1>
     <div>
         <p>CPF</p>
-        <input name='CPF' type='text'>
+        <input class='CPF' name='CPF' type='text'>
+    </div>
+    <div>
+        <p>Protocolo</p>
+        <input name='protocol' type='text'>
+    </div>
+    <div>
+        <input type='submit' value='Procurar' class='button'>
+    </div>
+</form>
+
+<form action='/occurrence' method="POST">
+    <h1>Registrar ocorrência</h1>
+    <div>
+        <p>CPF</p>
+        <input class='CPF' name='CPF' type='text'>
     </div>
     <div>
         <p>Ocorrência</p>
@@ -24,12 +41,12 @@
         <input name='date' class='flatpickr' placeholder="Selecione a data" type='text'>
     </div>
     <div>
-        <p>Descrição</p>
+        <p>Descrição (opcional)</p>
         <input name='description' type='text'>
     </div>
     <div>
         <p>Local</p>
-        <input id='location-input' name='location' type='text'>
+        <input id='location-input' name='location' type='text' placeholder="Digite um local">
         <input id='lat' name='lat' type='text' style='display:none'>
         <input id='lng' name='lng' type='text' style='display:none'>
         <input id='place_name' name='place_name' type='text' style='display:none'>

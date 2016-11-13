@@ -1,0 +1,24 @@
+{% extends 'menu.html' %}
+{% block header %}
+<title>{{occurrence}} em {{place_name}} às {{time}} em {{date}}</title>
+<link rel='stylesheet' type='text/css' href='static/css/occurrence.css'>
+{% endblock %}
+{% block content %}
+<div id='protocol'>
+    <h1>{{occurrence}}</h1>
+    <h3>{{protocol_number}}</h3>
+</div>
+<div id='info'>
+    <div><b>Ocorrência: </b><p>{{occurrence}}</p></div>
+    <div><b>Protocolo: </b><p>{{protocol_number}}</p></div>
+    <div><b>Data: </b><p>{{date}} às {{time}}</p></div>
+    <div><b>CPF: </b><p>{{CPF}}</p></div>
+    <div><b>Tipo: </b><p>{{occurrence}}</p></div>
+    <div><b>Descrição: </b><p>{{description}}</p></div>
+    <div><b>Status: </b><p>{{status}}</p></div>
+    <div><b>Data de resolução: </b><p> {{feedback_date}}</p></div>
+    <div><b>Feedback: </b><p>{{feedback}}</p></div>
+    <div><b>Local: </b><p>{{place_name}}</p>
+    <img src="https://maps.googleapis.com/maps/api/staticmap?center={{lat}},{{lng}}&zoom=17&size=600x300&maptype=roadmap&markers=color:blue|{{lat}},{{lng}}" boder="0"></div>
+</div>
+{% endblock %}

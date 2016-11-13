@@ -1,3 +1,7 @@
+#content h1 {
+    text-align: center;
+}
+
 #content form > div > input {
     width: 50%;
 }
@@ -15,8 +19,4 @@
 #map {
     height: 450px;
     margin-bottom: 15px;
-}
-
-#location-input {
-    text-overflow: ellipsis;
 }

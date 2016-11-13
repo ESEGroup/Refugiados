@@ -21,9 +21,9 @@ class Api:
             return Api.models.User(CPF, None)
 
         data = json.loads(f.read().decode('utf-8'))
-        if (data["FuncionarioAdministrativo"]):
+        if data["FuncionarioAdministrativo"]:
             user = self.models.Admin(data["CPF"], data["Nome"])
-        elif (data["Professor"] or data["ProfessorVisitante"] or data["FuncionarioTerceirizado"]):
+        elif data["Professor"] or data["ProfessorVisitante"] or data["FuncionarioTerceirizado"]:
             user = self.models.Employee(data["CPF"], data["Nome"])
         else:
             user = self.model.User(data["CPF"], data["Nome"])
@@ -32,6 +32,7 @@ class Api:
     def set_occurrence(self, CPF, occurrence, date, description, lat, lng, place_name):
         user = self.get_person_info(CPF.replace(".","").replace("-",""))
         oc = Models.Occurrence(user, date, occurrence, description, lat, lng, place_name)
+        oc.save()
         return(oc)
 
     def login(self, CPF, password):

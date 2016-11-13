@@ -1,28 +1,74 @@
 from projetox9 import app, Config
 from .api import Api
+from .utils import Utils
 from flask import render_template, request, redirect, url_for, session
 
 class Views:
     api = Api()
 
-    @app.route('/', methods=['GET', 'POST'])
+    @app.route('/')
     def home():
-        if (request.method == "GET"):
-            return render_template('create-occurrence.html', googlemaps_autocomplete_key=Config.googlemaps_autocomplete_key)
-        else:
-            data = Views.api.set_occurrence(request.form["CPF"], request.form["occurrence"], request.form["date"], request.form["description"], request.form["lat"], request.form["lng"], request.form["place_name"])
-            return render_template('occurrence.html', CPF=request.form["CPF"])
+        return render_template('create-occurrence.html', googlemaps_autocomplete_key=Config.googlemaps_autocomplete_key)
+
+    @app.route('/occurrence', methods=['GET', 'POST'])
+    def occurrence():
+        errors = {}
+        if request.form or request.args:
+            if request.form:
+                inputs = ["CPF", "occurrence", "date", "lat", "lng", "place_name"]
+                obj = request.form
+            else:
+                inputs = ["CPF", "protocol"]
+                obj = request.args
+
+            for i in inputs:
+                if not obj.get(i):
+                    errors[i] = True
+                    obj[i] = ""
+
+            if not Utils.CPF_is_valid(obj["CPF"]):
+                obj["CPF"] = obj["CPF"].replace(".","").replace("-","")
+                errors["CPF"] = True
+
+            if not errors:
+                if request.form:
+                    data = Views.api.set_occurrence(
+                                request.form["CPF"],
+                                request.form["occurrence"],
+                                request.form["date"],
+                                request.form["description"],
+                                request.form["lat"],
+                                request.form["lng"],
+                                request.form["place_name"])
+                else:
+                    data = Views.api.get_occurrence(request.args["CPF"],
+                                                    request.args["protocol"])
+
+                return render_template('occurrence.html',
+                            protocol_number=data.protocol_number,
+                            date=data.date.split(" ")[0],
+                            time=data.date.split(" ")[1],
+                            occurrence=Utils.title(data.occurrence),
+                            place_name=data.place_name,
+                            description=Utils.title(data.description),
+                            status=data.status,
+                            feedback_date=Utils.optional(data.feedback_date),
+                            feedback=Utils.optional(data.feedback),
+                            CPF=Utils.format_CPF(request.form["CPF"]),
+                            lat=data.location[0],
+                            lng=data.location[1])
+        return redirect(url_for('home'))
 
     @app.route('/login', methods=['GET', 'POST'])
     def login():
-        if (session.get('logged')):
+        if session.get('logged'):
             return Views.manage()
-        elif (request.method == 'POST' and request.form and request.form.get('CPF') and request.form.get('password')):
+        elif request.method == 'POST' and request.form and request.form.get('CPF') and request.form.get('password'):
             CPF = request.form.get('CPF')
             password = request.form.get('password')
             logged, admin = Views.api.login(CPF, password)
 
-            if (logged):
+            if logged:
                 session['logged'] = logged
                 session['admin'] = admin
                 session['CPF'] = request.form['CPF']
@@ -34,7 +80,7 @@ class Views:
         logged = session.get('logged')
         admin = session.get('admin')
 
-        if (logged):
+        if logged:
             occurrences = Views.api.get_occurrences()
             return render_template('manage.html', admin=admin, occurrences=occurrences)
         else:
