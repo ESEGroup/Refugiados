@@ -1,19 +1,24 @@
 from .models import Models
-from projetox9 import config
+from projetox9 import Config
 from urllib.request import urlopen
+from urllib.error import HTTPError, URLError
 import json
 
 class Api:
-    def __init__(self):
-        self.models = Models()
+    models = Models()
 
     def get_occurrences(self):
         pass
 
-    def get_info_person(self, CPF):
-        base_url = str(config.FakeSiga)
+    def get_person_info(self, CPF):
+        base_url = str(Config.FakeSiga_url)
         path = '/api/Dados/findOne?filter={"where":{"CPF":"' + CPF + '"}}'
-        f = urlopen(base_url + path)
+        try:
+            f = urlopen(base_url + path)
+        except HTTPError as e:
+            return Api.models.User(CPF, None)
+        except URLError as e:
+            return Api.models.User(CPF, None)
 
         data = json.loads(f.read().decode('utf-8'))
         if (data["FuncionarioAdministrativo"]):
@@ -24,5 +29,10 @@ class Api:
             user = self.model.User(data["CPF"], data["Nome"])
         return user
 
-    def create_occurrence(self, CPF, occurrence, date, description):
-        print(self.get_info_person(CPF))
+    def set_occurrence(self, CPF, occurrence, date, description, lat, lng, place_name):
+        user = self.get_person_info(CPF.replace(".","").replace("-",""))
+        oc = Models.Occurrence(user, date, occurrence, description, lat, lng, place_name)
+        return(oc)
+
+    def login(self, CPF, password):
+        return True, True

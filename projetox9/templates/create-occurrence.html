@@ -3,6 +3,10 @@
 <title>Cadastrar ocorrência</title>
 <link rel='stylesheet' type='text/css' href='static/css/form.css'>
 <link rel='stylesheet' type='text/css' href='static/css/create-occurrence.css'>
+<script src="static/js/flatpickr.min.js"></script>
+<script src="static/js/create-occurrence.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{googlemaps_autocomplete_key}}&libraries=places&callback=init_map" async defer></script>
+<link rel="stylesheet" type='text/css' href="static/css/flatpickr.min.css">
 {% endblock %}
 
 {% block content %}
@@ -17,11 +21,19 @@
     </div>
     <div>
         <p>Data da ocorrência</p>
-        <input name='date' type='text'>
+        <input name='date' class='flatpickr' placeholder="Selecione a data" type='text'>
     </div>
     <div>
         <p>Descrição</p>
         <input name='description' type='text'>
+    </div>
+    <div>
+        <p>Local</p>
+        <input id='location-input' name='location' type='text'>
+        <input id='lat' name='lat' type='text' style='display:none'>
+        <input id='lng' name='lng' type='text' style='display:none'>
+        <input id='place_name' name='place_name' type='text' style='display:none'>
+        <div id="map"></div>
     </div>
     <div>
         <input type='submit' value='Cadastrar' class='button'>

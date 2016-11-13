@@ -1,0 +1,13 @@
+class URL(object):
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+
+    def __str__(self):
+        return "http://" + self.host + ":" + str(self.port)
+
+class Config:
+    projetox9_url = URL("0.0.0.0", 5000)
+    FakeSiga_url  = URL("0.0.0.0", 3000)
+    mongodb_url   = URL("0.0.0.0", 0000)
+    google_maps_key = "<KEY>"

@@ -1,44 +1,41 @@
-from projetox9 import app
+from projetox9 import app, Config
 from .api import Api
-from flask import render_template, request
+from flask import render_template, request, redirect, url_for, session
 
 class Views:
-    def __init__(self):
-        self.api = Api()
+    api = Api()
 
-        @app.route('/', methods=['GET', 'POST'])
-        def home():
-            if (not request.form):
-                return render_template('create-occurrence.html')
-            else:
-                self.api.create_occurrence(request.form["CPF"], request.form["occurrence"], request.form["date"], request.form["description"])
-                return render_template('home.html', CPF=request.form["CPF"])
+    @app.route('/', methods=['GET', 'POST'])
+    def home():
+        if (request.method == "GET"):
+            return render_template('create-occurrence.html', googlemaps_autocomplete_key=Config.googlemaps_autocomplete_key)
+        else:
+            data = Views.api.set_occurrence(request.form["CPF"], request.form["occurrence"], request.form["date"], request.form["description"], request.form["lat"], request.form["lng"], request.form["place_name"])
+            return render_template('occurrence.html', CPF=request.form["CPF"])
 
-        @app.route('/login', methods=['GET', 'POST'])
-        def login():
-            if (request.form and request.form.get('CPF') and request.form.get('password')):
-                CPF = request.form.get('CPF')
-                password = request.form.get('password')
-                logged, admin = self.api.login(CPF, password)
-
-                if (logged):
-                    resp = make_response(render_template('admin.html', logged=logged, admin=admin)
-                else:
-                    resp = make_response(render_template('login.html'))
-
-                resp.set_cookie('logged', logged)
-                resp.set_cookie('admin', admin)
-                return resp
-            else:
-                return render_template('login.html')
-
-        @app.require('/admin')
-        def admin():
-            logged = request.cookies.get('logged')
-            admin = request.cookies.get('admin')
+    @app.route('/login', methods=['GET', 'POST'])
+    def login():
+        if (session.get('logged')):
+            return Views.manage()
+        elif (request.method == 'POST' and request.form and request.form.get('CPF') and request.form.get('password')):
+            CPF = request.form.get('CPF')
+            password = request.form.get('password')
+            logged, admin = Views.api.login(CPF, password)
 
             if (logged):
-                occurrences = self.api.get_occurrences()
-                return render_template('admin.html', admin=admin, occurrences=occurrences)
-            else:
-                return Views.login()
+                session['logged'] = logged
+                session['admin'] = admin
+                session['CPF'] = request.form['CPF']
+                return redirect(url_for('manage'))
+        return render_template('login.html')
+
+    @app.route('/manage')
+    def manage():
+        logged = session.get('logged')
+        admin = session.get('admin')
+
+        if (logged):
+            occurrences = Views.api.get_occurrences()
+            return render_template('manage.html', admin=admin, occurrences=occurrences)
+        else:
+            return redirect(url_for("login"))
