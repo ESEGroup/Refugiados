@@ -35,7 +35,7 @@ class Models:
             return "Admin: " + super().__str__()
 
     class Occurrence:
-        def __init__(self, user, date, occurrence, description, lat, lng, place_name):
+        def __init__(self, user, date, occurrence, description, lat, lng, place_name, protocol_number=None):
             self.CPF = user.CPF
             self.name = user.name
             self.date = date
@@ -46,7 +46,7 @@ class Models:
             self.status = Status.NOT_RESOLVED
             self.feedback_date = None
             self.feedback = None
-            self.protocol_number = binascii.hexlify(urandom(5)).upper().decode('utf-8')
+            self.protocol_number = protocol_number or binascii.hexlify(urandom(5)).upper().decode('utf-8')
 
         def save(self):
             pass
