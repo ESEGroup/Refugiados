@@ -24,14 +24,17 @@ class Models:
     class Employee(User):
         is_employee = True
 
-        def __init__(self, CPF, name, password):
+        def __init__(self, CPF, name, password, pk=None, is_approved=False):
             super().__init__(CPF, name)
             self.password = Models.Employee.__hash_pass(password)
             self.is_approved = is_approved
+            self.pk = None
 
-        def create(CPF="", name="", password="", is_admin=False, is_approved=False):
-            return Models.Admin(CPF, name, password, is_admin, is_approved=is_approved) or \
-                        Models.Employee(CPF, name, password, is_approved=is_approved)
+        def create(CPF="", name="", password="", is_admin=False, is_approved=False, pk=None):
+            if (is_admin):
+                return Models.Admin(CPF, name, password, is_approved=is_approved, pk=pk)
+            else:
+                return Models.Employee(CPF, name, password, is_approved=is_approved, pk=pk)
 
         def __hash_pass(password):
             #if isinstance(password, str):
@@ -39,19 +42,24 @@ class Models:
             #password = bcrypt.hashpw(password, bcrypt.gensalt())
             return password
 
+        @property
+        def empty():
+            return Models.Employee("","","")
+
         def auth(user, password):
             if user and Models.Employee.__hash_pass(password) == user.password:
                 return user
-            return Models.User("","")
+            return Models.Employee.empty
 
         def save(self):
-            client = mongoclient(str(config.mongodb))
+            client = MongoClient(str(Config.mongodb))
             db = client.admin
-            db.authenticate(config.mongodb.username, config.mongodb.password)
-            db = client.projetox9
+            db.authenticate(Config.mongodb.username, Config.mongodb.password)
+            db = client.ProjetoX9
             result = db.users.insert_one(
                 {
                     "CPF": self.CPF,
+                    "password": self.password,
                     "name": self.name,
                     "is_admin": self.is_admin,
                     "is_approved": self.is_approved
@@ -65,20 +73,17 @@ class Models:
             return user
 
         def get_one(CPF):
-            client = mongoclient(str(config.mongodb))
+            client = MongoClient(str(Config.mongodb))
             db = client.admin
-            db.authenticate(config.mongodb.username, config.mongodb.password)
-            db = client.projetox9
-            user = db.user.find_one({'CPF':CPF})
-            return user
+            db.authenticate(Config.mongodb.username, Config.mongodb.password)
+            db = client.ProjetoX9
+            user = db.users.find_one({'CPF':CPF})
+            if user:
+                return Models.Employee.create(CPF=user["CPF"], password=user["password"], is_admin=user["is_admin"], is_approved=user["is_approved"], pk=user["_id"])
+            return Models.Employee.empty
 
     class Admin(Employee):
         is_admin = True
-
-        def __init__(self, CPF, name, password, is_admin=True, is_approved=False):
-            if not is_admin:
-                return None
-            super().__init__(CPF, name, password, is_approved=False)
 
         def approve_user(self, user):
             user.is_approved = True
@@ -89,20 +94,29 @@ class Models:
             return "Admin: " + super().__str__()
 
     class OccurrenceType:
-        def __init__(self, name):
+        def __init__(self, pk, name):
+            self.pk = pk
             self.name = name
 
         def get_all():
-            client = mongoclient(str(config.mongodb))
+            client = MongoClient(str(Config.mongodb))
             db = client.admin
-            db.authenticate(config.mongodb.username, config.mongodb.password)
-            db = client.projetox9
-            types = db.occurrence_types.find()
+            db.authenticate(Config.mongodb.username, Config.mongodb.password)
+            db = client.ProjetoX9
+            types = db.occurrence_types.find({})
 
-            return types
+            ret = []
+            for t in types:
+                ret += [Models.OccurrenceType(t["_id"], t["name"])]
+
+            return ret
+
+        def __str__(self):
+            return self.name + " (" + self.pk + ")"
 
     class Occurrence:
-        def __init__(self, user, date, occurrence, description, lat, lng, place_name, protocol_number=None):
+        def __init__(self, pk, user, date, occurrence, description, lat, lng, place_name, protocol_number=None):
+            self.pk = pk
             self.CPF = user.CPF
             self.name = user.name
             self.date = date
@@ -116,42 +130,47 @@ class Models:
             self.protocol_number = protocol_number or binascii.hexlify(urandom(5)).upper().decode('utf-8')
 
         def get_all():
-            client = mongoclient(str(config.mongodb))
+            client = MongoClient(str(Config.mongodb))
             db = client.admin
-            db.authenticate(config.mongodb.username, config.mongodb.password)
-            db = client.projetox9
+            db.authenticate(Config.mongodb.username, Config.mongodb.password)
+            db = client.ProjetoX9
             occurrences = db.ocorrencias.find()
+
+            ret = []
+            for t in occurrences:
+                ret += [Models.Occurrence(t["_id"], Models.User(t["CPF"], t["name"]), t["date"], t["occurrence"], t["location"]["lat"], t["location"]["lng"], t["place_name"], t["protocol_number"])]
             return occurrences
 
         def get_one(CPF, protocol):
-            client = mongoclient(str(config.mongodb))
+            client = MongoClient(str(Config.mongodb))
             db = client.admin
-            db.authenticate(config.mongodb.username, config.mongodb.password)
-            db = client.projetox9
-            occurrence = db.ocorrencias.find_one({'CPF':CPF,'numeroProtocolo':protocol})
-            return occurrence
+            db.authenticate(Config.mongodb.username, Config.mongodb.password)
+            db = client.ProjetoX9
+            occurrence = db.occurrences.find_one({'CPF':CPF,'protocol_number':protocol})
+
+            return Models.Occurrence(t["_id"], Models.User(t["CPF"], t["name"]), t["date"], t["occurrence"], t["location"]["lat"], t["location"]["lng"], t["place_name"], t["protocol_number"])
 
         def save(self):
-            client = mongoclient(str(config.mongodb))
+            client = MongoClient(str(Config.mongodb))
             db = client.admin
-            db.authenticate(config.mongodb.username, config.mongodb.password)
-            db = client.projetox9
-            result = db.ocorrencias.insert_one(
+            db.authenticate(Config.mongodb.username, Config.mongodb.password)
+            db = client.ProjetoX9
+            result = db.ocurrences.insert_one(
                 {
                     "CPF" : self.CPF,
-                    "nome" : self.name,
-                    "data" : self.date,
-                    "ocorrencia" : self.occurrence,
-                    "localizacao": {
-                        "latitude" : self.location[0],
-                        "longitude" : self.location[1]
+                    "name" : self.name,
+                    "date" : self.date,
+                    "ocurrence" : self.occurrence,
+                    "location": {
+                        "lat" : self.location[0],
+                        "lng" : self.location[1]
                     },
-                    "nomeLugar" : self.place_name,
-                    "descricao" : self.description,
+                    "place_name" : self.place_name,
+                    "description" : self.description,
                     "status" : self.status,
-                    "dataFeedback" : self.feedback_date,
+                    "feedback_date" : self.feedback_date,
                     "feedback" : self.feedback,
-                    "numeroProtocolo" : self.protocol_number
+                    "protocol_number" : self.protocol_number
                 }
             )
 

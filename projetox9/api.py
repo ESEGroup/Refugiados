@@ -9,7 +9,7 @@ class Api:
     models = Models()
 
     def get_occurrence_types(self):
-        return Api.models.OccurrenceTypes.get_all()
+        return Api.models.OccurrenceType.get_all()
 
     def get_occurrences(self):
         occurrences = Api.models.Occurrence.get_all()
@@ -45,10 +45,12 @@ class Api:
         return(oc)
 
     def login(self, CPF, password):
-        tmp_user = Api.models.Employee.get_one(CPF)
-        user = Api.models.Employee.auth(tmp_user, password)
+        logged, admin = False, False
+        tmp_user = Api.models.Employee.get_one(Utils.clean_CPF(CPF))
+        if (tmp_user):
+            user = Api.models.Employee.auth(tmp_user, password)
+            logged = user.is_employee and user.is_approved
 
-        logged = user.is_employee and user.is_approved
         return logged, logged and user.is_admin
 
     def signup(self, CPF, password, admin):

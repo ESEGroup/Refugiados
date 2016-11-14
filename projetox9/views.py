@@ -10,7 +10,11 @@ class Views:
     @app.route('/')
     def create_occurrence():
         error = json.loads(request.args["error"]) if request.args.get("error") else {}
-        return render_template('create-occurrence.html', googlemaps_autocomplete_key=Config.googlemaps_autocomplete_key, error=error)
+        occurrence_types = Views.api.get_occurrence_types()
+        return render_template('create-occurrence.html',
+                error=error,
+                googlemaps_autocomplete_key=Config.googlemaps_autocomplete_key,
+                occurrence_types=occurrence_types)
 
     @app.route('/occurrence', methods=['GET', 'POST'])
     def occurrence():
