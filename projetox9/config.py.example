@@ -14,9 +14,14 @@ class DB(URL):
         self.password = password
         self.db = db
 
+    def __str__(self):
+        return super().__str__() + "/" + self.db + "?authMechanism=SCRAM-SHA-1" 
+
 class Config:
     projetox9_url = URL("0.0.0.0", 5000)
     FakeSiga_url  = URL("0.0.0.0", 3000)
-    mongodb_url   = URL("0.0.0.0", 0000, 'mongodb', "username", "password", "db")
     googlemaps_autocomplete_key = ""
-
+    mongoHost = ""
+    mongoPort = 
+    mongoUser = ""
+    mongoPass = ""

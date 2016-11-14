@@ -2,7 +2,7 @@
 from pymongo import MongoClient
 from os import urandom
 import binascii
-from config import Config
+from .config import Config
 
 class Status:
     NOT_RESOLVED = "Não resolvido"
@@ -57,7 +57,6 @@ class Models:
             self.protocol_number = protocol_number or binascii.hexlify(urandom(5)).upper().decode('utf-8')
 
         def save(self):
-            print(str(Config.mongodb_DB))
             client = MongoClient(Config.mongoHost + ":" + Config.mongoPort)
             db = client.admin
             db.authenticate(Config.mongoUser, Config.mongoPass)
