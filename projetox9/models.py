@@ -2,11 +2,21 @@
 from pymongo import MongoClient
 from os import urandom
 import binascii
-from config import Config
+from .utils import Utils
+from .config import Config
 
 class Status:
     NOT_RESOLVED = "Não resolvido"
     RESOLVED = "Resolvido"
+
+
+class DB:
+    def connect_db():
+        client = MongoClient(str(Config.mongodb_DB))
+        db = client.admin
+        db.authenticate(Config.mongodb_DB.username, Config.mongodb_DB.password)
+        db = client.ProjetoX9
+        return db
 
 class Models:
     class User:
@@ -14,7 +24,7 @@ class Models:
         is_admin = False
 
         def __init__(self, CPF, name):
-            self.CPF = CPF.replace(".","").replace("-","-")
+            self.CPF = Utils.clean_CPF(CPF)
             self.name = name
 
         def __str__(self):
@@ -23,16 +33,60 @@ class Models:
     class Employee(User):
         is_employee = True
 
-        def __init__(self, CPF, name, password, approved):
+        def __init__(self, CPF, name, password):
             super().__init__(CPF, name)
+            self.password = Models.Employee.__hash_pass(password)
+            self.is_approved = is_approved
 
-            self.approved = approved
-            if isinstance(password, str):
-                password = bytes(password, 'utf-8')
-            self.password = password #bcrypt.hashpw(password, bcrypt.gensalt())
+        def create(CPF="", name="", password="", is_admin=False, is_approved=False):
+            return Models.Admin(CPF, name, password, is_admin, is_approved=is_approved) or \
+                        Models.Employee(CPF, name, password, is_approved=is_approved)
+
+        def __hash_pass(password):
+            #if isinstance(password, str):
+            #    password = bytes(password, 'utf-8')
+            #password = bcrypt.hashpw(password, bcrypt.gensalt())
+            return password
+
+        def auth(user, password):
+            if user and Models.Employee.__hash_pass(password) == user.password:
+                return user
+            return Models.User("","")
+
+        def save(self):
+            db = DB.connect_db()
+            result = db.users.insert_one(
+                {
+                    "CPF": self.CPF,
+                    "name": self.name,
+                    "is_admin": self.is_admin,
+                    "is_approved": self.is_approved
+                }
+            )
+
+        def update(self):
+            pass
+
+        def approve_user(self, user):
+            return user
+
+        def get_one(CPF):
+            db = DB.connect_db()
+            user = db.user.find_one({'CPF':CPF})
+            return user
 
     class Admin(Employee):
         is_admin = True
+
+        def __init__(self, CPF, name, password, is_admin=True, is_approved=False):
+            if not is_admin:
+                return None
+            super().__init__(CPF, name, password, is_approved=False)
+
+        def approve_user(self, user):
+            user.is_approved = True
+            user.update()
+            return user
 
         def __str__(self):
             return "Admin: " + super().__str__()
@@ -41,6 +95,11 @@ class Models:
         def __init__(self, name):
             self.name = name
 
+        def get_all():
+            db = DB.connect_db()
+            types = db.occurrence_types.find()
+
+            return types
 
     class Occurrence:
         def __init__(self, user, date, occurrence, description, lat, lng, place_name, protocol_number=None):
@@ -56,13 +115,19 @@ class Models:
             self.feedback = None
             self.protocol_number = protocol_number or binascii.hexlify(urandom(5)).upper().decode('utf-8')
 
+        def get_all():
+            db = DB.connect_db()
+            occurrences = db.ocorrencias.find()
+            return occurrences
+
+        def get_one(CPF, protocol):
+            db = DB.connect_db()
+            occurrence = db.ocorrencias.find_one({'CPF':CPF,'numeroProtocolo':protocol})
+            return occurrence
+
         def save(self):
-            print(str(Config.mongodb_DB))
-            client = MongoClient('ec2-52-67-192-182.sa-east-1.compute.amazonaws.com:21766')
-            db = client.admin
-            db.authenticate('projetox9', 'x9ufrj')
-            db = client.ProjetoX9
-            result = db.ocorrencias.insert_one( 
+            db = DB.connect_db()
+            result = db.ocorrencias.insert_one(
                 {
                     "CPF" : self.CPF,
                     "nome" : self.name,
@@ -80,6 +145,6 @@ class Models:
                     "numeroProtocolo" : self.protocol_number
                 }
             )
-            
+
         def __str__(self):
             return "[" + self.protocol_number + "] " + str(self.name) + " reportou " + self.occurrence.lower() + " em " + self.place_name + " às " + self.date.split(" ")[1] + " de " + self.date.split(" ")[0]

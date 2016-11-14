@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function(ev) {
     });
 
     document.getElementById("register").addEventListener('submit', function(ev) {
-        var error = {};
+        var error = false;
         if (!is_CPF_valid(this.getElementsByClassName("CPF")[0].value)) {
             this.getElementsByClassName("CPF")[0].parentNode.getElementsByTagName("div")[0].className = "error";
             error = true;

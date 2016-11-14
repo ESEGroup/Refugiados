@@ -45,60 +45,52 @@ class Views:
                                 request.args["CPF"],
                                 request.args["protocol"].upper()[:10])
 
-                return render_template('occurrence.html',
-                            protocol_number=data.protocol_number,
-                            date=data.date.split(" ")[0],
-                            time=data.date.split(" ")[1],
-                            occurrence=Utils.title(data.occurrence),
-                            place_name=data.place_name,
-                            description=Utils.title(Utils.optional(data.description)),
-                            status=data.status,
-                            feedback_date=Utils.optional(data.feedback_date),
-                            feedback=Utils.optional(data.feedback),
-                            CPF=Utils.format_CPF(data.CPF),
-                            lat=data.location[0],
-                            lng=data.location[1])
+                if data:
+                    return render_template('occurrence.html',
+                                protocol_number=data.protocol_number,
+                                date=data.date.split(" ")[0],
+                                time=data.date.split(" ")[1],
+                                occurrence=Utils.title(data.occurrence),
+                                place_name=data.place_name,
+                                description=Utils.title(Utils.optional(data.description)),
+                                status=data.status,
+                                feedback_date=Utils.optional(data.feedback_date),
+                                feedback=Utils.optional(data.feedback),
+                                CPF=Utils.format_CPF(data.CPF),
+                                lat=data.location[0],
+                                lng=data.location[1])
         return redirect(url_for('create_occurrence', error=json.dumps(errors)))
 
     @app.route('/login', methods=['GET', 'POST'])
     def login():
         if session.get('logged'):
-            return Views.manage()
+            return redirect(url_for('manage'))
         elif request.method == 'POST' and request.form and request.form.get('CPF') and request.form.get('password'):
-            CPF = request.form.get('CPF')
-            password = request.form.get('password')
-            logged, admin = Views.api.login(CPF, password)
+            CPF, password = request.form.get('CPF'), request.form.get('password')
+            session['logged'], session['admin'] = Views.api.login(CPF, password)
+            return redirect(url_for('manage'))
 
-            if logged:
-                session['logged'] = logged
-                session['admin'] = admin
-                session['CPF'] = request.form['CPF']
-                return redirect(url_for('manage'))
         return render_template('sign.html', title="Login", path="login", action="Entrar")
 
     @app.route('/manage')
     def manage():
         logged = session.get('logged')
         admin = session.get('admin')
-
-        if logged:
-            occurrences = Views.api.get_occurrences()
-            return render_template('manage.html', admin=admin, occurrences=occurrences)
-        else:
+        if not logged:
             return redirect(url_for("login"))
 
+        occurrences = Views.api.get_occurrences()
+        return render_template('manage.html', admin=admin, occurrences=occurrences)
 
     @app.route('/signup', methods=['GET', 'POST'])
     def create_account():
         logged = session.get('logged')
         admin = session.get('admin')
+        if not logged:
+            return redirect(url_for("login"))
 
-        if logged:
-            if request.method == "POST":
-                CPF, password = request.form.get('CPF'), request.form.get('password')
-                if CPF and password:
-                    user = Views.api.create_account(CPF, password, admin)
-                return redirect(url_for('manage'))
-            return render_template('sign.html', title="Cadastro", path='signup', action="Cadastrar")
-        else:
-            return redirect(url_for('login'))
+        if request.method == "POST" and request.form.get("CPF") and request.form.get("password"):
+            CPF, password = request.form.get('CPF'), request.form.get('password')
+            user = Views.api.create_account(CPF, password, admin)
+            return redirect(url_for('manage'))
+        return render_template('sign.html', title="Cadastro", path='signup', action="Cadastrar")
