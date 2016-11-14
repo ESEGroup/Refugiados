@@ -9,15 +9,6 @@ class Status:
     NOT_RESOLVED = "Não resolvido"
     RESOLVED = "Resolvido"
 
-
-class DB:
-    def connect_db():
-        client = MongoClient(str(Config.mongodb_DB))
-        db = client.admin
-        db.authenticate(Config.mongodb_DB.username, Config.mongodb_DB.password)
-        db = client.ProjetoX9
-        return db
-
 class Models:
     class User:
         is_employee = False
@@ -54,7 +45,10 @@ class Models:
             return Models.User("","")
 
         def save(self):
-            db = DB.connect_db()
+            client = mongoclient(str(config.mongodb))
+            db = client.admin
+            db.authenticate(config.mongodb.username, config.mongodb.password)
+            db = client.projetox9
             result = db.users.insert_one(
                 {
                     "CPF": self.CPF,
@@ -71,7 +65,10 @@ class Models:
             return user
 
         def get_one(CPF):
-            db = DB.connect_db()
+            client = mongoclient(str(config.mongodb))
+            db = client.admin
+            db.authenticate(config.mongodb.username, config.mongodb.password)
+            db = client.projetox9
             user = db.user.find_one({'CPF':CPF})
             return user
 
@@ -96,7 +93,10 @@ class Models:
             self.name = name
 
         def get_all():
-            db = DB.connect_db()
+            client = mongoclient(str(config.mongodb))
+            db = client.admin
+            db.authenticate(config.mongodb.username, config.mongodb.password)
+            db = client.projetox9
             types = db.occurrence_types.find()
 
             return types
@@ -116,17 +116,26 @@ class Models:
             self.protocol_number = protocol_number or binascii.hexlify(urandom(5)).upper().decode('utf-8')
 
         def get_all():
-            db = DB.connect_db()
+            client = mongoclient(str(config.mongodb))
+            db = client.admin
+            db.authenticate(config.mongodb.username, config.mongodb.password)
+            db = client.projetox9
             occurrences = db.ocorrencias.find()
             return occurrences
 
         def get_one(CPF, protocol):
-            db = DB.connect_db()
+            client = mongoclient(str(config.mongodb))
+            db = client.admin
+            db.authenticate(config.mongodb.username, config.mongodb.password)
+            db = client.projetox9
             occurrence = db.ocorrencias.find_one({'CPF':CPF,'numeroProtocolo':protocol})
             return occurrence
 
         def save(self):
-            db = DB.connect_db()
+            client = mongoclient(str(config.mongodb))
+            db = client.admin
+            db.authenticate(config.mongodb.username, config.mongodb.password)
+            db = client.projetox9
             result = db.ocorrencias.insert_one(
                 {
                     "CPF" : self.CPF,
@@ -145,6 +154,9 @@ class Models:
                     "numeroProtocolo" : self.protocol_number
                 }
             )
+
+        def update(self):
+            pass
 
         def __str__(self):
             return "[" + self.protocol_number + "] " + str(self.name) + " reportou " + self.occurrence.lower() + " em " + self.place_name + " às " + self.date.split(" ")[1] + " de " + self.date.split(" ")[0]

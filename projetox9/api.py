@@ -20,7 +20,7 @@ class Api:
 
     def get_person_info(self, CPF):
         CPF = Utils.clean_CPF(CPF)
-        base_url = str(Config.FakeSiga_URI)
+        base_url = str(Config.FakeSiga)
         path = '/api/Dados/findOne?filter={"where":{"CPF":"' + CPF + '"}}'
         try:
             f = urlopen(base_url + path)
