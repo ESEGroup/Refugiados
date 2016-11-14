@@ -86,3 +86,20 @@ class Views:
             return render_template('manage.html', admin=admin, occurrences=occurrences)
         else:
             return redirect(url_for("login"))
+
+
+    @app.route('/signup', methods=["GET", "POST"])
+    def create_account():
+        logged = session.get('logged')
+        admin = session.get('admin')
+
+        if logged:
+            if request.method == "POST":
+                CPF, password = request.form.get("CPF"), request.form.get("password")
+                if CPF and password:
+                    success = Views.api.create_account(CPF, password, admin)
+                    return redirect(url_for('manage'))
+            else:
+                return render_template('signup.html')
+        else:
+            return redirect(url_for("login"))

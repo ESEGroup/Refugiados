@@ -22,6 +22,9 @@ class Utils:
         ret = len(Utils.format_CPF(CPF)) == 14
         return ret
 
+    def clean_CPF(CPF):
+        return re.sub(r'\D','',CPF)
+
     def optional(txt):
         if (txt == None or txt == ""): return "-"
         return txt

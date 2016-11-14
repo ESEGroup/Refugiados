@@ -1,0 +1,21 @@
+{% extends 'menu.html' %}
+{% block header %}
+<title>Cadastro</title>
+<link rel='stylesheet' type='text/css' href='static/css/form.css'>
+{% endblock %}
+
+{% block content %}
+<form action='/signup' method="POST">
+    <div>
+        <p>CPF</p>
+        <input name='CPF' type='text'>
+    </div>
+    <div>
+        <p>Senha</p>
+        <input name='password' type='password'>
+    </div>
+    <div>
+        <input type='submit' value='Entrar' class='button'>
+    </div>
+</form>
+{% endblock %}

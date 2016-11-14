@@ -11,7 +11,7 @@ class Models:
         is_employee = False
         is_admin = False
 
-        def __init__(self, CPF, name):
+        def __init__(self, CPF, name, is_employee):
             self.CPF = CPF.replace(".","").replace("-","-")
             self.name = name
 
@@ -21,9 +21,10 @@ class Models:
     class Employee(User):
         is_employee = True
 
-        def __init__(self, CPF, name, password):
+        def __init__(self, CPF, name, password, approved):
             super().__init__(CPF, name)
 
+            self.approved = approved
             if isinstance(password, str):
                 password = bytes(password, 'utf-8')
             self.password = password #bcrypt.hashpw(password, bcrypt.gensalt())
