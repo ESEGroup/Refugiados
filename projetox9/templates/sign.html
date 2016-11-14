@@ -1,21 +1,23 @@
 {% extends 'menu.html' %}
 {% block header %}
-<title>Login</title>
+<title>{{title}}</title>
+<script src="static/js/utils.js"></script>
+<script src="static/js/form.js"></script>
 <link rel='stylesheet' type='text/css' href='static/css/form.css'>
 {% endblock %}
 
 {% block content %}
-<form action='/login' method="POST">
+<form action='/{{path}}' method="POST">
     <div>
         <p>CPF</p>
-        <input name='CPF' type='text'>
+        <input class='CPF' name='CPF' type='text'>
     </div>
     <div>
         <p>Senha</p>
         <input name='password' type='password'>
     </div>
     <div>
-        <input type='submit' value='Entrar' class='button'>
+        <input type='submit' value='{{action}}' class='button'>
     </div>
 </form>
 {% endblock %}

@@ -74,7 +74,7 @@ class Views:
                 session['admin'] = admin
                 session['CPF'] = request.form['CPF']
                 return redirect(url_for('manage'))
-        return render_template('login.html')
+        return render_template('sign.html', title="Login", path="login", action="Entrar")
 
     @app.route('/manage')
     def manage():
@@ -88,18 +88,17 @@ class Views:
             return redirect(url_for("login"))
 
 
-    @app.route('/signup', methods=["GET", "POST"])
+    @app.route('/signup', methods=['GET', 'POST'])
     def create_account():
         logged = session.get('logged')
         admin = session.get('admin')
 
         if logged:
             if request.method == "POST":
-                CPF, password = request.form.get("CPF"), request.form.get("password")
+                CPF, password = request.form.get('CPF'), request.form.get('password')
                 if CPF and password:
-                    success = Views.api.create_account(CPF, password, admin)
-                    return redirect(url_for('manage'))
-            else:
-                return render_template('signup.html')
+                    user = Views.api.create_account(CPF, password, admin)
+                return redirect(url_for('manage'))
+            return render_template('sign.html', title="Cadastro", path='signup', action="Cadastrar")
         else:
-            return redirect(url_for("login"))
+            return redirect(url_for('login'))
