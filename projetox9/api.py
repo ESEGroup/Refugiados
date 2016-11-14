@@ -1,5 +1,6 @@
-from .models import Models
-from projetox9 import Config
+from models import Models
+from utils import Utils
+from config import Config
 from urllib.request import urlopen
 from urllib.error import HTTPError, URLError
 import json

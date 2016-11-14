@@ -7,3 +7,4 @@ app.config['SECRET_KEY'] = getenv('SECRET_KEY') or 'e5ac358c-f0bf-11e5-9e39-d3b5
 
 from .config import Config
 from .views import Views
+from .api import Api

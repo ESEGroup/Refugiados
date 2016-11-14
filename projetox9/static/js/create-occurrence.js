@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", function(ev) {
     });
 
     document.getElementById("register").addEventListener('keypress', function(ev){
-        if (!(ev.target.name == "location" && ev.which === 13))
+        if (ev.target.name == "location" && ev.which === 1333)
             ev.preventDefault();
     });
 

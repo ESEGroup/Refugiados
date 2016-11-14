@@ -1,6 +1,8 @@
 #import bcrypt
+from pymongo import MongoClient
 from os import urandom
 import binascii
+from config import Config
 
 class Status:
     NOT_RESOLVED = "Não resolvido"
@@ -11,7 +13,7 @@ class Models:
         is_employee = False
         is_admin = False
 
-        def __init__(self, CPF, name, is_employee):
+        def __init__(self, CPF, name):
             self.CPF = CPF.replace(".","").replace("-","-")
             self.name = name
 
@@ -50,7 +52,29 @@ class Models:
             self.protocol_number = protocol_number or binascii.hexlify(urandom(5)).upper().decode('utf-8')
 
         def save(self):
-            pass
-
+            print(str(Config.mongodb_DB))
+            client = MongoClient('ec2-52-67-192-182.sa-east-1.compute.amazonaws.com:21766')
+            db = client.admin
+            db.authenticate('projetox9', 'x9ufrj')
+            db = client.ProjetoX9
+            result = db.ocorrencias.insert_one( 
+                {
+                    "CPF" : self.CPF,
+                    "nome" : self.name,
+                    "data" : self.date,
+                    "ocorrencia" : self.occurrence,
+                    "localizacao": {
+                        "latitude" : self.location[0],
+                        "longitude" : self.location[1]
+                    },
+                    "nomeLugar" : self.place_name,
+                    "descricao" : self.description,
+                    "status" : self.status,
+                    "dataFeedback" : self.feedback_date,
+                    "feedback" : self.feedback,
+                    "numeroProtocolo" : self.protocol_number
+                }
+            )
+            
         def __str__(self):
             return "[" + self.protocol_number + "] " + str(self.name) + " reportou " + self.occurrence.lower() + " em " + self.place_name + " às " + self.date.split(" ")[1] + " de " + self.date.split(" ")[0]
