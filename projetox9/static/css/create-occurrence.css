@@ -6,16 +6,6 @@
     width: calc(50% - 30px);
 }
 
-#content form > div > p {
-    width: 45%;
-    display: inline-block;
-}
-
-#content form > div > input.button {
-    width: 50%;
-    margin: 0 25%;
-}
-
 #content #map {
     height: 450px;
     margin-bottom: 15px;

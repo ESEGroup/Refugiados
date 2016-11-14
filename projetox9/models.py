@@ -11,7 +11,7 @@ class Models:
         is_employee = False
         is_admin = False
 
-        def __init__(self, CPF, name, is_employee):
+        def __init__(self, CPF, name):
             self.CPF = CPF.replace(".","").replace("-","-")
             self.name = name
 
@@ -34,6 +34,11 @@ class Models:
 
         def __str__(self):
             return "Admin: " + super().__str__()
+
+    class OccurrenceType:
+        def __init__(self, name):
+            self.name = name
+
 
     class Occurrence:
         def __init__(self, user, date, occurrence, description, lat, lng, place_name, protocol_number=None):

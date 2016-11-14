@@ -1,4 +1,5 @@
 from .models import Models
+from .utils import Utils
 from projetox9 import Config
 from urllib.request import urlopen
 from urllib.error import HTTPError, URLError
@@ -26,26 +27,30 @@ class Api:
 
         data = json.loads(f.read().decode('utf-8'))
         if data["FuncionarioAdministrativo"]:
-            user = self.models.Admin(data["CPF"], data["Nome"])
+            user = Api.models.Admin(data["CPF"], data["Nome"])
         elif data["Professor"] or data["ProfessorVisitante"] or data["FuncionarioTerceirizado"]:
             user = Api.models.Employee(data["CPF"], data["Nome"])
         else:
             user = Api.models.User(data["CPF"], data["Nome"])
         return user
 
-    def get_person_name(self, CPF):
-        user = self.get_person_info(CPF)
-        return user.name
+    def get_occurrence_type(self, occurrence):
+        return occurrence
 
     def set_occurrence(self, CPF, occurrence, date, description, lat, lng, place_name):
         user = self.get_person_info(CPF)
-        oc = Models.Occurrence(user, date, occurrence, description, lat, lng, place_name)
+        oc_type = self.get_occurrence_type(occurrence)
+        oc = Api.models.Occurrence(user, date, oc_type, description, lat, lng, place_name)
         oc.save()
         return(oc)
 
     def login(self, CPF, password):
         return True, True
 
-    def signup(self, CPF, password, admin):
-        user = Models.Employee(CPF, self.get_person_name(CPF), password, admin)
+    def create_account(self, CPF, password, admin):
+        tmp_user = self.get_person_info(CPF)
+        if (tmp_user.is_admin):
+            user = Api.models.Admin(CPF, tmp_user.name, password, admin)
+        else:
+            user = Api.models.Employee(CPF, tmp_user.name, password, admin)
         return user

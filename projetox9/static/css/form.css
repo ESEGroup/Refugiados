@@ -5,3 +5,17 @@
     border-radius: 2px;
     padding: 15px; 3%;
 }
+
+#content form > div > input {
+    width: 50%;
+}
+
+#content form > div > p {
+    width: 45%;
+    display: inline-block;
+}
+
+#content form > div > input.button {
+    width: 50%;
+    margin: 0 25%;
+}
