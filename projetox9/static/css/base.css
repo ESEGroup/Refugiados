@@ -2,8 +2,38 @@ body {
     width: 100%;
     margin: 0;
     font-family: mono;
+    background-color: #2d2d2d;
+}
+
+#top_menu ul, a {
+    width: auto;
+    text-decoration: none;
+    color: black;
+    list-style: none;
+}
+
+#top_menu a > div {
+    max-width: 200px;
+}
+
+#top_menu a:hover {
+    color: #626262;
 }
 
 #top_menu {
+    height: 50px;
+    top: 0;
+    position: absolute;
+    margin: 0;
+    background-color: darkgrey;
+    width: 100%;
+    border-bottom: solid 1px #a0a19e;
+}
 
+#content {
+    margin-top: 50px;
+}
+
+.hide {
+    display: none;
 }

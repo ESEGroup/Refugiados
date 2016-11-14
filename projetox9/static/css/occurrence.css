@@ -23,7 +23,7 @@
     margin-top: 15px;
 }
 
-#content > #protocol {
+#content > div#info > div#protocol {
     width: 100%;
     text-align: center;
     background-color: darkgrey;

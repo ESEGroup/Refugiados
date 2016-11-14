@@ -2,13 +2,15 @@ from projetox9 import app, Config
 from .api import Api
 from .utils import Utils
 from flask import render_template, request, redirect, url_for, session
+import json
 
 class Views:
     api = Api()
 
     @app.route('/')
-    def home():
-        return render_template('create-occurrence.html', googlemaps_autocomplete_key=Config.googlemaps_autocomplete_key)
+    def create_occurrence():
+        error = json.loads(request.args["error"]) if request.args.get("error") else {}
+        return render_template('create-occurrence.html', googlemaps_autocomplete_key=Config.googlemaps_autocomplete_key, error=error)
 
     @app.route('/occurrence', methods=['GET', 'POST'])
     def occurrence():
@@ -24,10 +26,8 @@ class Views:
             for i in inputs:
                 if not obj.get(i):
                     errors[i] = True
-                    obj[i] = ""
 
-            if not Utils.CPF_is_valid(obj["CPF"]):
-                obj["CPF"] = obj["CPF"].replace(".","").replace("-","")
+            if not Utils.is_CPF_valid(obj.get("CPF")):
                 errors["CPF"] = True
 
             if not errors:
@@ -41,8 +41,9 @@ class Views:
                                 request.form["lng"],
                                 request.form["place_name"])
                 else:
-                    data = Views.api.get_occurrence(request.args["CPF"],
-                                                    request.args["protocol"])
+                    data = Views.api.get_occurrence(
+                                request.args["CPF"],
+                                request.args["protocol"].upper()[:10])
 
                 return render_template('occurrence.html',
                             protocol_number=data.protocol_number,
@@ -50,14 +51,14 @@ class Views:
                             time=data.date.split(" ")[1],
                             occurrence=Utils.title(data.occurrence),
                             place_name=data.place_name,
-                            description=Utils.title(data.description),
+                            description=Utils.title(Utils.optional(data.description)),
                             status=data.status,
                             feedback_date=Utils.optional(data.feedback_date),
                             feedback=Utils.optional(data.feedback),
-                            CPF=Utils.format_CPF(request.form["CPF"]),
+                            CPF=Utils.format_CPF(data.CPF),
                             lat=data.location[0],
                             lng=data.location[1])
-        return redirect(url_for('home'))
+        return redirect(url_for('create_occurrence', error=json.dumps(errors)))
 
     @app.route('/login', methods=['GET', 'POST'])
     def login():

@@ -3,11 +3,11 @@
 }
 
 #content form > div > input {
-    width: 50%;
+    width: calc(50% - 30px);
 }
 
 #content form > div > p {
-    width: 40%;
+    width: 45%;
     display: inline-block;
 }
 
@@ -16,7 +16,16 @@
     margin: 0 25%;
 }
 
-#map {
+#content #map {
     height: 450px;
     margin-bottom: 15px;
+}
+
+#content .error {
+    margin: 11px -5px;
+    float: right;
+    width: 29px;
+    height: 29px;
+    background-image: url("../img/error.png");
+    background-size: contain;
 }

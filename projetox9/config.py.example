@@ -1,13 +1,22 @@
 class URL(object):
-    def __init__(self, host, port):
+    def __init__(self, host, port, protocol='http'):
         self.host = host
         self.port = port
+        self.protocol = protocol
 
     def __str__(self):
-        return "http://" + self.host + ":" + str(self.port)
+        return self.protocol + "://" + self.host + ":" + str(self.port)
+
+class DB(URL):
+    def __init__(self, host, port, protocol, username, password, db):
+        super().__init__(host, port, protocol)
+        self.username = username
+        self.password = password
+        self.db = db
 
 class Config:
     projetox9_url = URL("0.0.0.0", 5000)
     FakeSiga_url  = URL("0.0.0.0", 3000)
-    mongodb_url   = URL("0.0.0.0", 0000)
-    google_maps_key = "<KEY>"
+    mongodb_url   = URL("0.0.0.0", 0000, 'mongodb', "username", "password", "db")
+    googlemaps_autocomplete_key = ""
+

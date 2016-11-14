@@ -10,6 +10,9 @@ class Api:
     def get_occurrences(self):
         pass
 
+    def get_occurrence(self, CPF, protocol):
+        return Models.Occurrence(Models.User(CPF, ""), " ", "Lol", "", -22, -23, "kek", protocol)
+
     def get_person_info(self, CPF):
         base_url = str(Config.FakeSiga_url)
         path = '/api/Dados/findOne?filter={"where":{"CPF":"' + CPF + '"}}'
