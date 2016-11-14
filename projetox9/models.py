@@ -58,9 +58,9 @@ class Models:
 
         def save(self):
             print(str(Config.mongodb_DB))
-            client = MongoClient('ec2-52-67-192-182.sa-east-1.compute.amazonaws.com:21766')
+            client = MongoClient(Config.mongoHost + ":" + Config.mongoPort)
             db = client.admin
-            db.authenticate('projetox9', 'x9ufrj')
+            db.authenticate(Config.mongoUser, Config.mongoPass)
             db = client.ProjetoX9
             result = db.ocorrencias.insert_one( 
                 {
