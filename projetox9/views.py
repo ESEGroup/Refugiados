@@ -109,29 +109,29 @@ class Views:
 
     @app.route('/approve')
     def approve():
-        logged, admin = session.get('logged'), session.get('admin')
-        if not logged:
-            return redirect(url_for("login"))
+        pk, CPF = request.args.get('pk'), request.args.get('CPF')
+        admin = session.get('admin')
 
-        if request.args.get("pk") and request.args.get("CPF") and admin:
-            is_approved = Views.api.approve_user(admin, request.args["pk"], request.args["CPF"])
+        if admin and pk and CPF:
+            is_approved = Views.api.approve_user(admin, CPF, pk)
 
         return redirect(url_for("manage"))
 
     @app.route('/update_occurrence', methods=["POST"])
     def update_occurrence():
-        logged, admin = session.get('logged'), session.get('admin')
-        if not logged:
+        if not session.get('logged'):
             return redirect(url_for("login"))
 
+        f = request.form
+        CPF, protocol, status = f.get("CPF"), f.get("protocol"), f.get("status")
+        feedback, feedback_date = f.get("feedback"), f.get("feedback_date")
 
-        if request.form.get("CPF") and request.form.get("protocol") and \
-            request.form.get("status") and request.form.get("feedback_date") and \
-            request.form.get("feedback"):
-                Views.api.update_occurrence(
-                            request.form["CPF"],
-                            request.form["protocol"],
-                            request.form["status"],
-                            request.form["feedback_date"],
-                            request.form["feedback"])
+        if CPF and protocol and status and feedback and feedback_date:
+            Views.api.update_occurrence(
+                        CPF,
+                        protocol,
+                        status,
+                        feedback_date,
+                        feedback)
+
         return redirect(url_for("manage"))

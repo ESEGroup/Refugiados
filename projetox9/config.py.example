@@ -17,6 +17,8 @@ class DB(URI):
         return super().__str__()
 
 class Config:
+    debug = True
+
     googlemaps_key = ""
 
     mongodb  = DB("0.0.0.0", 4000, "", "")

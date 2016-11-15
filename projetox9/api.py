@@ -35,7 +35,7 @@ class Api:
 
     def update_occurrence(self, CPF, protocol, status, feedback_date, feedback):
         occurrence = Api.models.Occurrence.get_one(CPF, protocol)
-        occurcence.status = status
+        occurrence.status = status
         occurrence.feedback_date = feedback_date
         occurrence.feedback = feedback
         occurrence.update()
@@ -62,7 +62,7 @@ class Api:
 
         manager = Api.models.Employee.create(is_admin=admin, is_approved=True)
         user = manager.approve_user(user)
-        return user.is_approved
+        return user.is_employee and user.is_approved
 
     def get_status_list(self):
         return [getattr(Status,s) for s in Status.__dict__ if not s.startswith("__")]

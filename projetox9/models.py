@@ -26,10 +26,17 @@ class Models:
             self.name = name or ""
 
         def __str__(self):
-            return self.name + " (" + self.CPF + ")"
+            approved = self.is_employee and self.is_approved
+            return "{0} ({1}) - {2}".format(
+                            self.name,
+                            self.CPF,
+                            ("aprovado" if approved else ""))
 
         def empty():
             return Models.User("","")
+
+        def update(self):
+            pass
 
         def create(CPF, name, is_employee, is_admin):
             if is_employee:
@@ -62,6 +69,8 @@ class Models:
             if password and hash:
                 if isinstance(password, str):
                     password = bytes(password, 'utf-8')
+                if isinstance(hash, str):
+                    hash = bytes(hash, 'utf-8')
                 return bcrypt.checkpw(password, hash)
 
         def to_dict(self):
@@ -107,14 +116,13 @@ class Models:
             ret = []
             for u in users:
                 ret += [Models.Employee.from_dict(u)]
-            print(ret)
             return ret
 
         def get_one(CPF, pk=None):
             db = DB.connect()
             dict = {"CPF":CPF}
             if pk:
-                dict["_id"] = pk
+                dict["_id"] = ObjectId(pk)
 
             user = db.users.find_one(dict)
             if user:
@@ -129,6 +137,7 @@ class Models:
         def approve_user(self, user):
             user.is_approved = True
             user.update()
+            return user
 
         def __str__(self):
             return "Admin: " + super().__str__()
