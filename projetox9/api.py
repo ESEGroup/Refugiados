@@ -2,7 +2,7 @@ import json
 from urllib.request import urlopen
 from urllib.error import HTTPError, URLError
 from projetox9 import Config
-from .models import Models
+from .models import Models, Status
 from .utils import Utils
 
 class Api:
@@ -21,6 +21,10 @@ class Api:
     def get_occurrence(self, CPF, protocol):
         return Api.models.Occurrence.get_one(Utils.clean_CPF(CPF), protocol)
 
+    def get_users_not_approved(self, admin=True):
+        if not admin: return
+        return  Api.models.Employee.get_all({"is_approved":False})
+
     def set_occurrence(self, CPF, oc_type_pk, date, description, lat, lng, place_name):
         user = self.get_person_info(Utils.clean_CPF(CPF))
         occurrence_type = self.get_occurrence_type(oc_type_pk)
@@ -28,6 +32,13 @@ class Api:
         oc = Api.models.Occurrence(user.CPF, user.name, date, occurrence_type, description, lat, lng, place_name)
         oc.save()
         return(oc)
+
+    def update_occurrence(self, CPF, protocol, status, feedback_date, feedback):
+        occurrence = Api.models.Occurrence.get_one(CPF, protocol)
+        occurcence.status = status
+        occurrence.feedback_date = feedback_date
+        occurrence.feedback = feedback
+        occurrence.update()
 
     def login(self, CPF, password):
         user = Api.models.Employee.get_one_or_empty(Utils.clean_CPF(CPF))
@@ -45,6 +56,16 @@ class Api:
         user = manager.approve_user(user) or user
 
         return user
+
+    def approve_user(self, admin, CPF, pk):
+        user = Api.models.Employee.get_one_or_empty(CPF, pk=pk)
+
+        manager = Api.models.Employee.create(is_admin=admin, is_approved=True)
+        user = manager.approve_user(user)
+        return user.is_approved
+
+    def get_status_list(self):
+        return [getattr(Status,s) for s in Status.__dict__ if not s.startswith("__")]
 
     # FakeSiga
     def get_person_info(self, CPF):

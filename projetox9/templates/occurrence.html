@@ -2,22 +2,63 @@
 {% block header %}
 <title>{{occurrence}} em {{place_name}} às {{time}} em {{date}}</title>
 <link rel='stylesheet' type='text/css' href='static/css/occurrence.css'>
+<script src="static/js/flatpickr.min.js"></script>
 {% endblock %}
 {% block content %}
 <div id='info'>
+    {% if admin %}
+    <form method="POST" action="update_occurrence">
+        <input style="display:none" name="CPF" value="{{CPF}}">
+        <input style="display:none" name="protocol" value="{{protocol_number}}">
+    {% endif %}
     <div id='protocol'>
         <h1>Protocolo</h1>
         <h3>{{protocol_number}}</h3>
     </div>
-    <div><b>Ocorrência: </b><p>{{occurrence}}</p></div>
+    <div><b>Ocorrência: </b><p>{{occurrence | title}}</p></div>
     <div><b>Protocolo: </b><p>{{protocol_number}}</p></div>
-    <div><b>Data: </b><p>{{date}} às {{time}}</p></div>
-    <div><b>CPF: </b><p>{{CPF}}</p></div>
-    <div><b>Descrição: </b><p>{{description}}</p></div>
-    <div><b>Status: </b><p>{{status}}</p></div>
-    <div><b>Data de resolução: </b><p> {{feedback_date}}</p></div>
-    <div><b>Feedback: </b><p>{{feedback}}</p></div>
-    <div><b>Local: </b><p>{{place_name}}</p>
+    <div><b>Data: </b><p>{{date | get_date}} às {{date | get_time}}</p></div>
+    <div><b>CPF: </b><p>{{CPF | format_CPF}}</p></div>
+    <div><b>Nome: </b><p>{{(name | title) | optional}}</p></div>
+    <div><b>Descrição: </b><p>
+        {% if admin %}
+            <input name='description' type='text' value='{{(description | optional) | title}}'>
+        {% else %}
+            {{(description | title) | optional}}
+        {% endif %}
+    </p></div>
+    <div><b>Status: </b><p>
+        {% if admin %}
+            <select name='status'>
+                {% for value in status_list %}
+                <option value="{{value}}"{% if value == status %}selected="selected"{% endif %}>{{value}}</option>
+                {% endfor %}
+            </select>
+        {% else %}
+            {{status}}
+        {% endif %}
+    </p></div>
+    <div><b>Data de resolução: </b><p>
+        {% if admin %}
+            <input name='feedback_date' class='flatpickr' type='text' value='{{feedback_date | optional}}'>
+        {% else %}
+            {{feedback_date | optional}}
+        {% endif %}
+    </p></div>
+    <div><b>Feedback: </b><p>
+        {% if admin %}
+            <input name='feedback' type='text' value='{{feedback | optional}}'>
+        {% else %}
+            {{feedback | optional}}
+        {% endif %}
+    </p></div>
+    <div><b>Local: </b><p>{{place_name | title}}</p></div>
+    {% if admin %}
+    <div><input class='submit' type='submit' value="Atualizar"></div>
+    {% endif %}
     <img src="https://maps.googleapis.com/maps/api/staticmap?center={{lat}},{{lng}}&zoom=17&size=600x300&maptype=roadmap&markers=color:blue|{{lat}},{{lng}}" boder="0"></div>
+    {% if admin %}
+    </form>
+    {% endif %}
 </div>
 {% endblock %}

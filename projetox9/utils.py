@@ -1,17 +1,22 @@
 import re
+from projetox9 import app
 
 class Utils:
+    @app.template_filter('title')
     def title(txt):
         list = txt.split(" ")
+        ret = []
         for t in list:
             if len(t) > 1:
-                t = t[0].upper() + t[1:].lower()
-        return "".join(list)
+                ret += [t[0].upper() + t[1:].lower()]
+        return " ".join(ret)
 
+    @app.template_filter('optional')
     def optional(txt):
-        if (txt == None or txt == ""): return "-"
+        if (len(txt or "") == 0): return "-"
         return txt
 
+    @app.template_filter('format_CPF')
     def format_CPF(CPF):
         CPF = Utils.clean_CPF(CPF)
         return "{0}.{1}.{2}-{3}".format(CPF[:3], CPF[3:6], CPF[6:9], CPF[9:])
@@ -23,12 +28,21 @@ class Utils:
         CPF = CPF or ""
         return re.sub(r'\D','',CPF)
 
+    @app.template_filter('get_date')
     def get_date(date):
         return date.split(" ")[0]
 
+    @app.template_filter('get_time')
     def get_time(date):
         date = date.split(" ")
 
         if len(date) > 1:
             return date[1]
         return ""
+
+    @app.template_filter('limit_size')
+    def max_size_filter(txt):
+        max_size=20
+        if len(txt) > max_size:
+            return txt[:max_size-3]+"..."
+        return txt

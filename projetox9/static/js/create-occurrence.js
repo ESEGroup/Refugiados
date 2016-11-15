@@ -19,7 +19,7 @@ function init_map() {
             icon: 'static/img/blue-dot.png',
             map: map,
         }),
-        geocoder = new google.maps.Geocoder(),
+        geocoder = new google.maps.Geocoder();
     autocomplete.bindTo('bounds', map);
 
     google.maps.event.addListener(map, 'click', function(ev) {
