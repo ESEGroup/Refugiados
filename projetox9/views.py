@@ -9,11 +9,12 @@ class Views:
 
     @app.route('/')
     def create_occurrence():
-        error = json.loads(request.args["error"]) if request.args.get("error") else {}
+        error = json.loads(request.args.get("error", "{}"))
+
         occurrence_types = Views.api.get_occurrence_types()
         return render_template('create-occurrence.html',
                 error=error,
-                googlemaps_autocomplete_key=Config.googlemaps_autocomplete_key,
+                googlemaps_key=Config.googlemaps_key,
                 occurrence_types=occurrence_types)
 
     @app.route('/occurrence', methods=['GET', 'POST'])
@@ -52,8 +53,8 @@ class Views:
                 if data:
                     return render_template('occurrence.html',
                                 protocol_number=data.protocol_number,
-                                date=data.date.split(" ")[0],
-                                time=data.date.split(" ")[1],
+                                date=Utils.get_date(data.date),
+                                time=Utils.get_time(data.date),
                                 occurrence=Utils.title(data.occurrence.name),
                                 place_name=data.place_name,
                                 description=Utils.title(Utils.optional(data.description)),
@@ -76,6 +77,17 @@ class Views:
 
         return render_template('sign.html', title="Login", path="login", action="Entrar")
 
+
+    @app.route('/signup', methods=['GET', 'POST'])
+    def create_account():
+        admin = session.get('admin')
+
+        if request.method == "POST" and request.form.get("CPF") and request.form.get("password"):
+            CPF, password = request.form.get('CPF'), request.form.get('password')
+            user = Views.api.signup(CPF, password, admin)
+            return redirect(url_for('manage'))
+        return render_template('sign.html', title="Cadastro", path='signup', action="Cadastrar")
+
     @app.route('/manage')
     def manage():
         logged = session.get('logged')
@@ -85,16 +97,3 @@ class Views:
 
         occurrences = Views.api.get_occurrences()
         return render_template('manage.html', admin=admin, occurrences=occurrences)
-
-    @app.route('/signup', methods=['GET', 'POST'])
-    def create_account():
-        logged = session.get('logged')
-        admin = session.get('admin')
-        if not logged:
-            return redirect(url_for("login"))
-
-        if request.method == "POST" and request.form.get("CPF") and request.form.get("password"):
-            CPF, password = request.form.get('CPF'), request.form.get('password')
-            user = Views.api.signup(CPF, password, admin)
-            return redirect(url_for('manage'))
-        return render_template('sign.html', title="Cadastro", path='signup', action="Cadastrar")

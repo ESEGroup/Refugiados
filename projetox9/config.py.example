@@ -17,7 +17,7 @@ class DB(URI):
         return super().__str__()
 
 class Config:
-    googlemaps_autocomplete_key = ""
+    googlemaps_key = ""
 
     mongodb  = DB("0.0.0.0", 4000, "", "")
 

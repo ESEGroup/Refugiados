@@ -1,9 +1,9 @@
-from .models import Models
-from .utils import Utils
-from .config import Config
+import json
 from urllib.request import urlopen
 from urllib.error import HTTPError, URLError
-import json
+from projetox9 import Config
+from .models import Models
+from .utils import Utils
 
 class Api:
     models = Models()
@@ -22,25 +22,23 @@ class Api:
         return Api.models.Occurrence.get_one(Utils.clean_CPF(CPF), protocol)
 
     def set_occurrence(self, CPF, oc_type_pk, date, description, lat, lng, place_name):
-        user = self.get_person_info(CPF)
+        user = self.get_person_info(Utils.clean_CPF(CPF))
         occurrence_type = self.get_occurrence_type(oc_type_pk)
 
-        oc = Api.models.Occurrence(user, date, occurrence_type, description, lat, lng, place_name)
+        oc = Api.models.Occurrence(user.CPF, user.name, date, occurrence_type, description, lat, lng, place_name)
         oc.save()
         return(oc)
 
     def login(self, CPF, password):
-        logged, admin = False, False
-        tmp_user = Api.models.Employee.get_one_or_empty(Utils.clean_CPF(CPF))
+        user = Api.models.Employee.get_one_or_empty(Utils.clean_CPF(CPF))
+        user = Api.models.Employee.auth(user, password)
 
-        user = Api.models.Employee.auth(tmp_user, password)
         logged = user.is_employee and user.is_approved
-
         return logged, logged and user.is_admin
 
     def signup(self, CPF, password, admin):
-        tmp_user = self.get_person_info(CPF)
-        user = Api.models.Employee.create(CPF=CPF, name=tmp_user.name, password=password, is_admin=tmp_user.is_admin)
+        user = self.get_person_info(Utils.clean_CPF(CPF))
+        user = Api.models.Employee.create(CPF=user.CPF, name=user.name, is_admin=user.is_admin, password=password)
         user.save()
 
         manager = Api.models.Employee.create(is_admin=admin, is_approved=True)
@@ -50,7 +48,6 @@ class Api:
 
     # FakeSiga
     def get_person_info(self, CPF):
-        CPF = Utils.clean_CPF(CPF)
         base_url = str(Config.FakeSiga)
         path = '/api/Dados/findOne?filter={"where":{"CPF":"' + CPF + '"}}'
 
@@ -62,10 +59,8 @@ class Api:
             return Api.models.User(CPF, None)
 
         data = json.loads(f.read().decode('utf-8'))
-        if data["FuncionarioAdministrativo"]:
-            user = Api.models.Admin(data["CPF"], data["Nome"])
-        elif data["Professor"] or data["ProfessorVisitante"] or data["FuncionarioTerceirizado"]:
-            user = Api.models.Employee(data["CPF"], data["Nome"])
-        else:
-            user = Api.models.User(data["CPF"], data["Nome"])
-        return user
+
+        is_admin = data["FuncionarioAdministrativo"]
+        is_employee = data["Professor"] or data["ProfessorVisitante"] or data["FuncionarioTerceirizado"] or is_admin
+
+        return Api.models.User.create(data["CPF"], data["Nome"], is_employee, is_admin)

@@ -8,11 +8,11 @@ for (var i in query)
 
 function init_map() {
     var map = new google.maps.Map(document.getElementById('map'), {
-        disableDefaultUI: true,
-        zoomControl: true,
-        center: {lat: -22.852645, lng: -43.229663},
-        zoom: 14
-    }),
+            disableDefaultUI: true,
+            zoomControl: true,
+            center: {lat: -22.852645, lng: -43.229663},
+            zoom: 14
+        }),
         input = (document.getElementById('location-input')),
         autocomplete = new google.maps.places.Autocomplete(input),
         marker = new google.maps.Marker({
@@ -20,10 +20,7 @@ function init_map() {
             map: map,
         }),
         geocoder = new google.maps.Geocoder(),
-        infowindow = new google.maps.InfoWindow();
-
     autocomplete.bindTo('bounds', map);
-
 
     google.maps.event.addListener(map, 'click', function(ev) {
         set_marker(marker, map, ev.latLng);
@@ -54,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function(ev) {
     });
 
     document.getElementById("register").addEventListener('keypress', function(ev){
-        if (ev.target.name == "location" && ev.which === 1333)
+        if (ev.target.name == "location" && ev.which === 13)
             ev.preventDefault();
     });
 
@@ -80,8 +77,7 @@ document.addEventListener("DOMContentLoaded", function(ev) {
     var CPFs = document.getElementsByClassName("CPF");
     for (var i=0; i<CPFs.length;++i){
         CPFs[i].addEventListener('input', function(ev) {
-            var content = ev.target.value.replace(/\./g,"").replace(/-/g,"");
-            ev.target.value = format_CPF(content);
+            ev.target.value = format_CPF(ev.target.value);
         });
     }
 

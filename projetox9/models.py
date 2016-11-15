@@ -3,27 +3,39 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 from os import urandom
 import binascii
-from .utils import Utils
-from .config import Config
+from projetox9 import Config
 
 class Status:
     NOT_RESOLVED = "Não resolvido"
     RESOLVED = "Resolvido"
+
+class DB:
+    def connect():
+        client = MongoClient(str(Config.mongodb))
+        db = client.admin
+        db.authenticate(Config.mongodb.username, Config.mongodb.password)
+        return client.ProjetoX9
 
 class Models:
     class User:
         is_employee = False
         is_admin = False
 
-        def __init__(self, CPF, name):
-            self.CPF = Utils.clean_CPF(CPF)
-            self.name = name or ""
+        def __init__(self, CPF, name=""):
+            self.CPF = CPF
+            self.name = name
 
         def __str__(self):
             return self.name + " (" + self.CPF + ")"
 
         def empty():
             return Models.User("","")
+
+        def create(CPF, name, is_employee, is_admin):
+            if is_employee:
+                return Models.Employee.create(CPF=CPF, name=name, is_admin=is_admin)
+            else:
+                return Models.User(CPF, name)
 
     class Employee(User):
         is_employee = True
@@ -32,7 +44,7 @@ class Models:
             super().__init__(CPF, name)
             self.password = hash or Models.Employee.__hash_pass(password)
             self.is_approved = is_approved
-            self.pk = None
+            self.pk = pk
 
         def create(CPF="", name="", password="", is_admin=False, is_approved=False, pk=None, hash=None):
             if (is_admin):
@@ -42,22 +54,27 @@ class Models:
 
         def __hash_pass(password):
             if password:
+                if isinstance(password, str):
+                    password = bytes(password, 'utf-8')
                 return bcrypt.hashpw(password, bcrypt.gensalt())
-            return password
+
+        def __check_pass(password, hash):
+            if password and hash:
+                if isinstance(password, str):
+                    password = bytes(password, 'utf-8')
+                return bcrypt.checkpw(password, hash)
+
 
         def empty():
-            return Models.Employee("","","")
+            return Models.Employee("","")
 
         def auth(user, password):
-            if user.is_employee and bcrypt.checkpw(password, user.password):
+            if Models.Employee.__check_pass(password, user.password):
                 return user
             return Models.User.empty()
 
         def save(self):
-            client = MongoClient(str(Config.mongodb))
-            db = client.admin
-            db.authenticate(Config.mongodb.username, Config.mongodb.password)
-            db = client.ProjetoX9
+            db = DB.connect()
             result = db.users.insert_one({
                         "CPF": self.CPF,
                         "password": self.password,
@@ -72,10 +89,7 @@ class Models:
             pass
 
         def get_one(CPF):
-            client = MongoClient(str(Config.mongodb))
-            db = client.admin
-            db.authenticate(Config.mongodb.username, Config.mongodb.password)
-            db = client.ProjetoX9
+            db = DB.connect()
             user = db.users.find_one({'CPF':CPF})
             if user:
                 return Models.Employee.create(
@@ -84,7 +98,6 @@ class Models:
                         is_admin=user["is_admin"],
                         is_approved=user["is_approved"],
                         pk=user["_id"])
-            return None
 
         def get_one_or_empty(CPF):
             return Models.Employee.get_one(CPF) or Models.User.empty()
@@ -111,28 +124,25 @@ class Models:
             return Models.OccurrenceType(d["_id"], d["name"])
 
         def get_one(pk):
-            client = MongoClient(str(Config.mongodb))
-            db = client.admin
-            db.authenticate(Config.mongodb.username, Config.mongodb.password)
-            db = client.ProjetoX9
+            db = DB.connect()
             oc_type = db.occurrence_types.find_one({'_id': ObjectId(pk)})
 
             if oc_type:
-                return Models.OccurrenceType(oc_type["_id"], oc_type["name"])
+                return Models.OccurrenceType.from_dict(oc_type)
+
+        def empty():
+            return Models.OccurrenceType("","")
 
         def get_one_or_empty(pk):
-            return Models.OccurrenceType.get_one(pk) or Models.OccurrenceType("","")
+            return Models.OccurrenceType.get_one(pk) or Models.OccurrenceType.empty()
 
         def get_all():
-            client = MongoClient(str(Config.mongodb))
-            db = client.admin
-            db.authenticate(Config.mongodb.username, Config.mongodb.password)
-            db = client.ProjetoX9
-            types = db.occurrence_types.find({})
+            db = DB.connect()
+            types = db.occurrence_types.find()
 
             ret = []
             for t in types:
-                ret += [Models.OccurrenceType(t["_id"], t["name"])]
+                ret += [Models.OccurrenceType.from_dict(t)]
 
             return ret
 
@@ -140,10 +150,10 @@ class Models:
             return self.name + " (" + str(self.pk) + ")"
 
     class Occurrence:
-        def __init__(self, user, date, occurrence, description, lat, lng, place_name, protocol_number=None, pk=None):
+        def __init__(self, CPF, name, date, occurrence, description, lat, lng, place_name, protocol_number=None, pk=None):
             self.pk = pk
-            self.CPF = user.CPF
-            self.name = user.name
+            self.CPF = CPF
+            self.name = name
             self.date = date
             self.occurrence = occurrence
             self.location = (lat, lng)
@@ -157,7 +167,8 @@ class Models:
         def from_dict(d):
             if not d: return None
             return Models.Occurrence(
-                    Models.User(d["CPF"], d["name"]),
+                    d["CPF"],
+                    d["name"],
                     d["date"],
                     Models.OccurrenceType.from_dict(d["occurrence"]),
                     d["description"],
@@ -185,10 +196,7 @@ class Models:
                 "protocol_number" : self.protocol_number}
 
         def get_all():
-            client = MongoClient(str(Config.mongodb))
-            db = client.admin
-            db.authenticate(Config.mongodb.username, Config.mongodb.password)
-            db = client.ProjetoX9
+            db = DB.connect()
             occurrences = db.occurences.find()
 
             ret = []
@@ -198,20 +206,12 @@ class Models:
             return ret
 
         def get_one(CPF, protocol):
-            client = MongoClient(str(Config.mongodb))
-            db = client.admin
-            db.authenticate(Config.mongodb.username, Config.mongodb.password)
-            db = client.ProjetoX9
-
+            db = DB.connect()
             occurrence = db.occurrences.find_one({'CPF':CPF,'protocol_number':protocol})
             return Models.Occurrence.from_dict(occurrence)
 
         def save(self):
-            client = MongoClient(str(Config.mongodb))
-            db = client.admin
-            db.authenticate(Config.mongodb.username, Config.mongodb.password)
-            db = client.ProjetoX9
-
+            db = DB.connect()
             result = db.occurrences.insert_one(self.to_dict())
             return result
 

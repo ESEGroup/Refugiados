@@ -5,7 +5,5 @@ var format_CPF = function(CPF) {
 }
 
 var is_CPF_valid = function(CPF) {
-    if (CPF.length < 14)
-        return false;
-    return true;
+    return (CPF.length >= 14);
 }
