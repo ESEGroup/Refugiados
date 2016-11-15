@@ -28,8 +28,8 @@
             <tr>
                 <td>{{e.CPF | format_CPF}}</td>
                 <td>{{e.name | limit_size}}</td>
-                <td>{{e.is_employee}}</td>
-                <td>{{e.is_admin}}</td>
+                <td>{{e.is_employee | bool}}</td>
+                <td>{{e.is_admin | bool}}</td>
                 <td><a style="outline: none" href="approve?pk={{e.pk}}&CPF={{e.CPF}}"><div class='approve'></div></a></td>
             </tr>
             {% endfor %}
@@ -44,10 +44,13 @@
             <tr>
                 <th>Protocolo</th>
                 <th>CPF</th>
+                <th>Ocorrência</th>
                 <th>Nome</th>
                 <th>Data</th>
                 <th>Descrição</th>
                 <th>Local</th>
+                <th>Status</th>
+                <th>Feedback</th>
                 <th>Editar</th>
             </tr>
         </thead>
@@ -56,15 +59,20 @@
             <tr>
                 <td>{{oc.protocol_number}}</td>
                 <td>{{oc.CPF | format_CPF}}</td>
+                <td>{{oc.occurrence.name}}</td>
                 <td>{{oc.name | limit_size}}</td>
                 <td>{{oc.date}}</td>
                 <td>{{oc.description | limit_size}}</td>
-                <td>{{oc.place_name}}</td>
+                <td>{{oc.place_name | limit_size}}</td>
+                <td>{{oc.status}}</td>
+                <td>{{(oc.feedback | optional) | limit_size}}</td>
                 <td><a style="outline: none" href="occurrence?protocol={{oc.protocol_number}}&CPF={{oc.CPF}}"><div class='edit'></div></a></td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+</div>
+<div>
     <div id="map"></div>
 </div>
 {% endblock %}

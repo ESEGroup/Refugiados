@@ -2,7 +2,9 @@
 {% block header %}
 <title>{{occurrence}} em {{place_name}} às {{time}} em {{date}}</title>
 <link rel='stylesheet' type='text/css' href='static/css/occurrence.css'>
+<link rel="stylesheet" type='text/css' href="static/css/flatpickr.min.css">
 <script src="static/js/flatpickr.min.js"></script>
+<script src="static/js/occurrence.js"></script>
 {% endblock %}
 {% block content %}
 <div id='info'>
@@ -20,13 +22,7 @@
     <div><b>Data: </b><p>{{date | get_date}} às {{date | get_time}}</p></div>
     <div><b>CPF: </b><p>{{CPF | format_CPF}}</p></div>
     <div><b>Nome: </b><p>{{(name | title) | optional}}</p></div>
-    <div><b>Descrição: </b><p>
-        {% if admin %}
-            <input name='description' type='text' value='{{(description | optional) | title}}'>
-        {% else %}
-            {{(description | title) | optional}}
-        {% endif %}
-    </p></div>
+    <div><b>Descrição: </b><p>{{(description | title) | optional}}</p></div>
     <div><b>Status: </b><p>
         {% if admin %}
             <select name='status'>
@@ -40,14 +36,14 @@
     </p></div>
     <div><b>Data de resolução: </b><p>
         {% if admin %}
-            <input name='feedback_date' class='flatpickr' type='text' value='{{feedback_date | optional}}'>
+            <input name='feedback_date' class='flatpickr' type='text' value='{{feedback_date | empty}}'>
         {% else %}
             {{feedback_date | optional}}
         {% endif %}
     </p></div>
     <div><b>Feedback: </b><p>
         {% if admin %}
-            <input name='feedback' type='text' value='{{feedback | optional}}'>
+            <input name='feedback' type='text' value='{{feedback | empty}}'>
         {% else %}
             {{feedback | optional}}
         {% endif %}

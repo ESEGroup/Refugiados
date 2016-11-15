@@ -9,7 +9,20 @@ class Utils:
         for t in list:
             if len(t) > 1:
                 ret += [t[0].upper() + t[1:].lower()]
+            else:
+                ret += [t]
         return " ".join(ret)
+
+    @app.template_filter('empty')
+    def empty(txt):
+        if txt != None: return txt
+        return ""
+
+    @app.template_filter('bool')
+    def bool(b):
+        if b:
+            return "Sim"
+        return "Não"
 
     @app.template_filter('optional')
     def optional(txt):
@@ -42,7 +55,8 @@ class Utils:
 
     @app.template_filter('limit_size')
     def max_size_filter(txt):
-        max_size=20
+        max_size=15
         if len(txt) > max_size:
-            return txt[:max_size-3]+"..."
+            txt = re.sub(r'\ $', '', txt[:max_size-3])
+            return txt + "..."
         return txt

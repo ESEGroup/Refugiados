@@ -1,4 +1,4 @@
-#content div {
+#content > div {
     width: 80%;
     margin: 5% auto;
 }
@@ -16,7 +16,7 @@
     padding: 5px 0;
 }
 
-#content #map {
+#content div #map {
     height: 450px;
     margin-bottom: 15px;
 }
