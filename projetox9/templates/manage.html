@@ -11,7 +11,7 @@
 <title>Gerenciar</title>
 {% endblock %}
 {% block content %}
-{% if admin %}
+{% if admin and (employee | len) %}
 <div>
     <table>
         <thead>

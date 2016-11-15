@@ -181,7 +181,7 @@ class Models:
             return self.name + " (" + str(self.pk) + ")"
 
     class Occurrence:
-        def __init__(self, CPF, name, date, occurrence, description, lat, lng, place_name, protocol_number=None, pk=None):
+        def __init__(self, CPF, name, date, occurrence, description, lat, lng, place_name, protocol_number=None, pk=None, status=None, feedback_date=None, feedback=None):
             self.pk = pk
             self.CPF = CPF
             self.name = name
@@ -190,9 +190,9 @@ class Models:
             self.location = (lat, lng)
             self.place_name = place_name
             self.description = description
-            self.status = Status.NOT_RESOLVED
-            self.feedback_date = None
-            self.feedback = None
+            self.status = status or Status.NOT_RESOLVED
+            self.feedback_date = feedback_date
+            self.feedback = feedback
             self.protocol_number = protocol_number or binascii.hexlify(urandom(5)).upper().decode('utf-8')
 
         def from_dict(d):
@@ -207,7 +207,10 @@ class Models:
                     d["location"]["lng"],
                     d["place_name"],
                     d["protocol_number"],
-                    d["_id"])
+                    d["_id"],
+                    d["status"],
+                    d["feedback_date"],
+                    d["feedback"])
 
         def to_dict(self):
             return {

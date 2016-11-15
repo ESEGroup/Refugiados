@@ -18,6 +18,10 @@ class Utils:
         if txt != None: return txt
         return ""
 
+    @app.template_filter('len')
+    def length(list):
+        return len(list)
+
     @app.template_filter('bool')
     def bool(b):
         if b:
