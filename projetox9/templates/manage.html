@@ -11,7 +11,7 @@
 <title>Gerenciar</title>
 {% endblock %}
 {% block content %}
-{% if admin and (employee | len) %}
+{% if admin and (employees | len) %}
 <div>
     <table>
         <thead>
@@ -24,10 +24,10 @@
             </tr>
         </thead>
         <tbody>
-            {% for e in employee %}
+            {% for e in employees %}
             <tr>
                 <td>{{e.CPF | format_CPF}}</td>
-                <td>{{e.name | limit_size}}</td>
+                <td>{{e.name}}</td>
                 <td>{{e.is_employee | bool}}</td>
                 <td>{{e.is_admin | bool}}</td>
                 <td><a style="outline: none" href="approve?pk={{e.pk}}&CPF={{e.CPF}}"><div class='approve'></div></a></td>

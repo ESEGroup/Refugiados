@@ -55,9 +55,9 @@ class Models:
 
         def create(CPF="", name="", password="", is_admin=False, is_approved=False, pk=None, hash=None):
             if (is_admin):
-                return Models.Admin(CPF, name, password, is_approved=is_approved, pk=pk, hash=hash)
+                return Models.Admin(CPF, name, password=password, is_approved=is_approved, pk=pk, hash=hash)
             else:
-                return Models.Employee(CPF, name, password, is_approved=is_approved, pk=pk)
+                return Models.Employee(CPF, name, password=password, is_approved=is_approved, pk=pk, hash=hash)
 
         def __hash_pass(password):
             if password:
@@ -85,6 +85,7 @@ class Models:
             if not user: return Models.User.empty()
             return Models.Employee.create(
                     CPF=user["CPF"],
+                    name=user["name"],
                     hash=user["password"],
                     is_admin=user["is_admin"],
                     is_approved=user["is_approved"],
@@ -129,7 +130,7 @@ class Models:
                 return Models.Employee.from_dict(user)
 
         def get_one_or_empty(CPF, pk=None):
-            return Models.Employee.get_one(CPF, pk) or Models.User.empty()
+            return Models.Employee.get_one(CPF, pk=pk) or Models.User.empty()
 
     class Admin(Employee):
         is_admin = True

@@ -85,7 +85,9 @@ class Views:
 
     @app.route('/signup', methods=['GET', 'POST'])
     def create_account():
-        admin = session.get('admin')
+        logged, admin = session.get('logged'), session.get('admin')
+        if not logged:
+            return redirect(url_for('login'))
 
         if request.method == "POST" and request.form.get("CPF") and request.form.get("password"):
             CPF, password = request.form.get('CPF'), request.form.get('password')
@@ -100,11 +102,11 @@ class Views:
             return redirect(url_for("login"))
 
         occurrences = Views.api.get_occurrences()
-        employee = Views.api.get_users_not_approved(admin=admin)
+        employees = Views.api.get_users_not_approved(admin=admin)
         return render_template('manage.html',
                 admin=admin,
                 googlemaps_key=Config.googlemaps_key,
-                employee=employee,
+                employees=employees,
                 occurrences=occurrences)
 
     @app.route('/approve')
@@ -135,3 +137,8 @@ class Views:
                         feedback)
 
         return redirect(url_for("manage"))
+
+    @app.route('/logout')
+    def logout():
+        session['logged'], session['admin'] = False, False
+        return redirect(url_for('create_occurrence'))
