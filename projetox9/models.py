@@ -83,11 +83,8 @@ class Models:
                         "is_approved": self.is_approved})
 
         def update(self):
-            client = MongoClient(str(Config.mongodb))
-            db = client.admin
-            db.authenticate(Config.mongodb.username, Config.mongodb.password)
-            db = client.ProjetoX9
-            result = db.users.update_one({'CPF':self.CPF},{"is_admin": self.is_admin, "is_approved": self.is_approved})
+            db = DB.connect()
+            result = db.users.update_one({'CPF':self.CPF},{"$set":{"is_approved": self.is_approved}})
 
         def approve_user(self, user):
             pass
@@ -205,7 +202,7 @@ class Models:
 
             ret = []
             for o in occurrences:
-                ret += Models.Occurrence.from_dict(o)
+                ret += [Models.Occurrence.from_dict(o)]
 
             return ret
 
@@ -220,7 +217,14 @@ class Models:
             return result
 
         def update(self):
-            pass
+            db = DB.connect()
+            result = db.occurrences.update_one(
+                            {'CPF':self.CPF,
+                                'protocol':self.protocol_number},
+                            {"$set": {
+                                        "feedback":self.feedback,
+                                        "feedback_date":self.feedback_date,
+                                        "status": self.status}})
 
         def __str__(self):
             return "[" + self.protocol_number + "] " + str(self.name) + " reportou " + self.occurrence.name.lower() + " em " + self.place_name + " às " + self.date.split(" ")[1] + " de " + self.date.split(" ")[0]
