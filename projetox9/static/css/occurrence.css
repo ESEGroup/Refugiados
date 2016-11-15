@@ -4,29 +4,38 @@
     background-color: #ccc;
 }
 
-#content > div#info > div {
+#content > div#info div {
     padding: 15px 30px;
     border-bottom: solid 1px #dbddbd;
 }
 
-#content > div#info > div > b {
+#content > div#info div > b {
     display: inline-block;
     width: 200px;
 }
 
-#content > div#info > div > p {
+#content > div#info div > p {
     display: inline-block;
     margin: 0;
 }
 
-#content > div#info > div > img {
-    margin-top: 15px;
+#content img {
+    width: 100%;
 }
 
-#content > div#info > div#protocol {
+#content > div#info div#protocol {
     width: 100%;
     text-align: center;
     background-color: darkgrey;
     padding: 10px 0;
     margin: 0;
+}
+
+#content > div#info > form input {
+    width: 384px;
+}
+
+#content > div#info > form input.submit {
+    width: 50%;
+    margin: 0 25%;
 }

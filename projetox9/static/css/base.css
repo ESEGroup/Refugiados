@@ -5,6 +5,10 @@ body {
     background-color: #2d2d2d;
 }
 
+a:active {
+    outline:0;
+}
+
 #top_menu ul, a {
     width: auto;
     text-decoration: none;

@@ -21,9 +21,9 @@ class Models:
         is_employee = False
         is_admin = False
 
-        def __init__(self, CPF, name=""):
+        def __init__(self, CPF, name):
             self.CPF = CPF
-            self.name = name
+            self.name = name or ""
 
         def __str__(self):
             return self.name + " (" + self.CPF + ")"
@@ -64,9 +64,28 @@ class Models:
                     password = bytes(password, 'utf-8')
                 return bcrypt.checkpw(password, hash)
 
+        def to_dict(self):
+            return {
+                    "CPF": self.CPF,
+                    "password": self.password,
+                    "name": self.name,
+                    "is_admin": self.is_admin,
+                    "is_approved": self.is_approved}
+
+        def from_dict(user):
+            if not user: return Models.User.empty()
+            return Models.Employee.create(
+                    CPF=user["CPF"],
+                    hash=user["password"],
+                    is_admin=user["is_admin"],
+                    is_approved=user["is_approved"],
+                    pk=user["_id"])
 
         def empty():
             return Models.Employee("","")
+
+        def approve_user(self, user):
+            pass
 
         def auth(user, password):
             if Models.Employee.__check_pass(password, user.password):
@@ -75,33 +94,34 @@ class Models:
 
         def save(self):
             db = DB.connect()
-            result = db.users.insert_one({
-                        "CPF": self.CPF,
-                        "password": self.password,
-                        "name": self.name,
-                        "is_admin": self.is_admin,
-                        "is_approved": self.is_approved})
+            result = db.users.insert_one(self.to_dict())
 
         def update(self):
             db = DB.connect()
             result = db.users.update_one({'CPF':self.CPF},{"$set":{"is_approved": self.is_approved}})
 
-        def approve_user(self, user):
-            pass
-
-        def get_one(CPF):
+        def get_all(dict):
             db = DB.connect()
-            user = db.users.find_one({'CPF':CPF})
-            if user:
-                return Models.Employee.create(
-                        CPF=user["CPF"],
-                        hash=user["password"],
-                        is_admin=user["is_admin"],
-                        is_approved=user["is_approved"],
-                        pk=user["_id"])
+            users = db.users.find(dict)
 
-        def get_one_or_empty(CPF):
-            return Models.Employee.get_one(CPF) or Models.User.empty()
+            ret = []
+            for u in users:
+                ret += [Models.Employee.from_dict(u)]
+            print(ret)
+            return ret
+
+        def get_one(CPF, pk=None):
+            db = DB.connect()
+            dict = {"CPF":CPF}
+            if pk:
+                dict["_id"] = pk
+
+            user = db.users.find_one(dict)
+            if user:
+                return Models.Employee.from_dict(user)
+
+        def get_one_or_empty(CPF, pk=None):
+            return Models.Employee.get_one(CPF, pk) or Models.User.empty()
 
     class Admin(Employee):
         is_admin = True
@@ -122,6 +142,7 @@ class Models:
             return {"_id":self.pk, "name":self.name}
 
         def from_dict(d):
+            if not d: return Models.OccurrenceType.empty()
             return Models.OccurrenceType(d["_id"], d["name"])
 
         def get_one(pk):
@@ -198,7 +219,7 @@ class Models:
 
         def get_all():
             db = DB.connect()
-            occurrences = db.occurences.find()
+            occurrences = db.occurrences.find()
 
             ret = []
             for o in occurrences:
@@ -220,11 +241,11 @@ class Models:
             db = DB.connect()
             result = db.occurrences.update_one(
                             {'CPF':self.CPF,
-                                'protocol':self.protocol_number},
+                             'protocol':self.protocol_number},
                             {"$set": {
-                                        "feedback":self.feedback,
-                                        "feedback_date":self.feedback_date,
-                                        "status": self.status}})
+                                    "feedback":self.feedback,
+                                    "feedback_date":self.feedback_date,
+                                    "status": self.status}})
 
         def __str__(self):
             return "[" + self.protocol_number + "] " + str(self.name) + " reportou " + self.occurrence.name.lower() + " em " + self.place_name + " às " + self.date.split(" ")[1] + " de " + self.date.split(" ")[0]

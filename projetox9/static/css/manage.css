@@ -1,0 +1,38 @@
+#content div {
+    width: 80%;
+    margin: 5% auto;
+}
+
+#content table {
+    width: 100%;
+    margin: 0;
+    font-size: 16px;
+    background-color: #ccc;
+    padding: 20px;
+    text-align: center;
+}
+
+#content table tr td {
+    padding: 5px 0;
+}
+
+#content #map {
+    height: 450px;
+    margin-bottom: 15px;
+}
+
+#content .edit {
+    width: 29px;
+    height: 29px;
+    margin: 0 auto;
+    background-image: url("../img/edit.png");
+    background-size: contain;
+}
+
+#content .approve {
+    width: 29px;
+    height: 29px;
+    margin: 0 auto;
+    background-image: url("../img/approve.png");
+    background-size: contain;
+}
