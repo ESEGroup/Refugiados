@@ -47,14 +47,14 @@ class Views:
                 else:
                     data = Views.api.get_occurrence(
                                 request.args["CPF"],
-                                request.args["protocol"].upper()[:10])
+                                request.args["protocol"].upper())
 
                 if data:
                     return render_template('occurrence.html',
                                 protocol_number=data.protocol_number,
                                 date=data.date.split(" ")[0],
                                 time=data.date.split(" ")[1],
-                                occurrence=Utils.title(data.occurrence),
+                                occurrence=Utils.title(data.occurrence.name),
                                 place_name=data.place_name,
                                 description=Utils.title(Utils.optional(data.description)),
                                 status=data.status,
@@ -70,7 +70,7 @@ class Views:
         if session.get('logged'):
             return redirect(url_for('manage'))
         elif request.method == 'POST' and request.form and request.form.get('CPF') and request.form.get('password'):
-            CPF, password = request.form.get('CPF'), request.form.get('password')
+            CPF, password = request.form['CPF'], request.form['password']
             session['logged'], session['admin'] = Views.api.login(CPF, password)
             return redirect(url_for('manage'))
 
@@ -95,6 +95,6 @@ class Views:
 
         if request.method == "POST" and request.form.get("CPF") and request.form.get("password"):
             CPF, password = request.form.get('CPF'), request.form.get('password')
-            user = Views.api.create_account(CPF, password, admin)
+            user = Views.api.signup(CPF, password, admin)
             return redirect(url_for('manage'))
         return render_template('sign.html', title="Cadastro", path='signup', action="Cadastrar")
