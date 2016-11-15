@@ -250,11 +250,8 @@ class Models:
             db = DB.connect()
             result = db.occurrences.update_one(
                             {'CPF':self.CPF,
-                             'protocol':self.protocol_number},
-                            {"$set": {
-                                    "feedback":self.feedback,
-                                    "feedback_date":self.feedback_date,
-                                    "status": self.status}})
+                             'protocol_number':self.protocol_number},
+                            {'$set': self.to_dict()})
 
         def __str__(self):
             return "[" + self.protocol_number + "] " + str(self.name) + " reportou " + self.occurrence.name.lower() + " em " + self.place_name + " às " + self.date.split(" ")[1] + " de " + self.date.split(" ")[0]
