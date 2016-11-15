@@ -83,7 +83,11 @@ class Models:
                         "is_approved": self.is_approved})
 
         def update(self):
-            pass
+            client = MongoClient(str(Config.mongodb))
+            db = client.admin
+            db.authenticate(Config.mongodb.username, Config.mongodb.password)
+            db = client.ProjetoX9
+            result = db.users.update_one({'CPF':self.CPF},{"is_admin": self.is_admin, "is_approved": self.is_approved})
 
         def approve_user(self, user):
             pass
