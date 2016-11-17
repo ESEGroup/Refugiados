@@ -52,7 +52,7 @@
     {% if admin %}
     <div><input class='submit' type='submit' value="Atualizar"></div>
     {% endif %}
-    <img src="https://maps.googleapis.com/maps/api/staticmap?center={{lat}},{{lng}}&zoom=17&size=600x300&maptype=roadmap&markers=color:blue|{{lat}},{{lng}}" boder="0"></img>
+    <img src="https://maps.googleapis.com/maps/api/staticmap?key={{googlemaps_key}}&center={{lat}},{{lng}}&zoom=17&size=600x300&maptype=roadmap&markers=color:blue|{{lat}},{{lng}}" boder="0"></img>
     {% if admin %}
     </form>
     {% endif %}

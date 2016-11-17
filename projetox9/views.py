@@ -55,6 +55,7 @@ class Views:
 
                 if data:
                     return render_template('occurrence.html',
+				googlemaps_key=Config.googlemaps_key,
                                 admin=admin,
                                 protocol_number=data.protocol_number,
                                 date=data.date,
