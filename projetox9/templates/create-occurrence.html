@@ -31,21 +31,21 @@
     <div>
         <p>CPF</p>
         <input class='CPF' name='CPF' type='text'>
-        <div class='error {% if not error or not error["CPF"] %}hide{% endif %}'></div>
+        <div class='error {% if not (error and error["CPF"]) %}hide{% endif %}'></div>
     </div>
     <div>
         <p>Ocorrência</p>
         <select class='occurrence' name='occurrence'>
             {% for type in occurrence_types %}
-            <option value="{{type.pk}}">{{type.name}}</option>
+            <option value="{{type.pk}}">{{type.name | optional}}</option>
             {% endfor %}
         </select>
-        <div class='error {% if not error or not error["occurrence"] %}hide{% endif %}'></div>
+        <div class='error {% if not (error and error["occurrence"]) %}hide{% endif %}'></div>
     </div>
     <div>
         <p>Data da ocorrência</p>
         <input id='date' name='date' class='flatpickr' placeholder="Selecione a data" type='text'>
-        <div class='error {% if not error or not error["date"] %}hide{% endif %}'></div>
+        <div class='error {% if not (error and error["date"]) %}hide{% endif %}'></div>
     </div>
     <div>
         <p>Descrição (opcional)</p>
@@ -54,7 +54,7 @@
     <div>
         <p>Local</p>
         <input id='location-input' name='location' type='text' placeholder="Selecione o local">
-        <div class='error {% if not error or (not error["location"] and not error["lat"] and not error["lng"] and not error["place_name"]) %}hide{% endif %}'></div>
+        <div class='error {% if not (error and (error["location"] or error["lat"] or error["lng"] or error["place_name"])) %}hide{% endif %}'></div>
         <input id='lat' name='lat' type='text' class='hide'>
         <input id='lng' name='lng' type='text' class='hide'>
         <input id='place_name' name='place_name' type='text' class='hide'>
