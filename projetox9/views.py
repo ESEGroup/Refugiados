@@ -26,14 +26,14 @@ class Views:
         admin = session.get("admin")
         if request.form or request.args:
             if request.form:
-                inputs = ["CPF", "occurrence", "date", "lat", "lng", "place_name"]
+                inputs = ["occurrence", "date", "lat", "lng", "place_name"]
                 obj = request.form
             else:
                 inputs = ["CPF", "protocol"]
                 obj = request.args
 
             errors = {i:len(obj.get(i,""))>0 for i in inputs}
-            errors["CPF"] = errors["CPF"] or not Utils.is_CPF_valid(obj.get("CPF"))
+            errors["CPF"] = not Utils.is_CPF_valid(obj.get("CPF"))
 
             status_list = Views.api.get_status_list()
 
@@ -55,7 +55,7 @@ class Views:
                 if data:
                     return render_template('occurrence.html',
                                 admin=admin,
-                                googlemaps_key=Config.googlemaps_key
+				googlemaps_key=Config.googlemaps_key,
                                 protocol_number=data.protocol_number,
                                 date=data.date,
                                 occurrence=data.occurrence.name,
