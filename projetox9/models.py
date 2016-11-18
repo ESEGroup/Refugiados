@@ -69,12 +69,12 @@ class Models:
                 return bcrypt.hashpw(password, bcrypt.gensalt())
 
         def __check_pass(password, hash):
-                if isinstance(password, str):
-                    password = bytes(password, 'utf-8')
-                if isinstance(hash, str):
-                    hash = bytes(hash, 'utf-8')
+            if isinstance(password, str):
+                password = bytes(password, 'utf-8')
+            if isinstance(hash, str):
+                hash = bytes(hash, 'utf-8')
 
-                return bcrypt.checkpw(password, hash)
+            return bcrypt.checkpw(password, hash)
 
         def to_dict(self):
             return {
@@ -87,12 +87,11 @@ class Models:
 
         def from_dict(user):
             if not user: return None
-            return Models.User.create(
+            return Models.Employee.create(
                     pk=user["_id"],
                     CPF=user["CPF"],
                     name=user["name"],
                     hash=user["password"],
-                    is_employee=True,
                     is_admin=user["is_admin"],
                     is_approved=user["is_approved"])
 
@@ -100,13 +99,13 @@ class Models:
             return Models.Employee("","", "")
 
         def approve_user(self, user):
-            pass
+            return user
 
         def auth(user, password):
             if Models.Employee.__check_pass(password, user.password):
                 return user
 
-            return Models.User.empty()
+            return Models.Employee.empty()
 
         def save(self):
             db = DB.connect()
@@ -122,7 +121,7 @@ class Models:
 
             return [Models.Employee.from_dict(u) for u in users if u]
 
-        def get_one(CPF, pk):
+        def get_one(CPF, pk=None):
             db = DB.connect()
             user = db.users.find_one({"CPF":CPF, "_id":ObjectId(pk)})
 

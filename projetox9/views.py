@@ -55,7 +55,7 @@ class Views:
                 if data:
                     return render_template('occurrence.html',
                                 admin=admin,
-				googlemaps_key=Config.googlemaps_key,
+                                googlemaps_key=Config.googlemaps_key,
                                 protocol_number=data.protocol_number,
                                 date=data.date,
                                 occurrence=data.occurrence.name,
@@ -103,7 +103,7 @@ class Views:
             return redirect(url_for("login"))
 
         occurrences = Views.api.get_occurrences()
-        employees = Views.api.get_users_not_approved(admin=admin)
+        employees = Views.api.get_employees_not_approved(admin=admin)
 
         return render_template('manage.html',
                 admin=session.get('admin'),
@@ -117,7 +117,7 @@ class Views:
         admin = session.get('admin')
 
         if admin and pk and CPF:
-            is_approved = Views.api.approve_user(admin, CPF, pk)
+            is_approved = Views.api.approve_employee(admin, CPF, pk).is_approved
 
         return redirect(url_for("manage"))
 

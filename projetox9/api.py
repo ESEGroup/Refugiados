@@ -21,7 +21,7 @@ class Api:
     def get_occurrence(self, CPF, protocol):
         return self.models.Occurrence.get_one(Utils.clean_CPF(CPF), protocol.upper())
 
-    def get_users_not_approved(self, admin=True):
+    def get_employees_not_approved(self, admin):
         if not admin: return
         return self.models.Employee.get_all({"is_approved":False})
 
@@ -41,28 +41,23 @@ class Api:
         occurrence.update()
 
     def login(self, CPF, password):
-        user = self.models.Employee.get_one_or_empty(Utils.clean_CPF(CPF))
-        user = self.models.Employee.auth(user, password)
+        employee = self.models.Employee.get_one_or_empty(Utils.clean_CPF(CPF))
+        employee = self.models.Employee.auth(employee, password)
 
-        return user.is_approved, user.is_approved and user.is_admin
+        return employee.is_approved, employee.is_approved and employee.is_admin
 
     def signup(self, CPF, password, admin):
-        user = self.get_person_info(Utils.clean_CPF(CPF))
-        user = self.models.Employee.create(CPF=user.CPF, name=user.name, is_admin=user.is_admin, password=password)
-        user.save()
+        employee = self.get_person_info(Utils.clean_CPF(CPF))
+        employee = self.models.Employee.create(CPF=employee.CPF, name=employee.name, is_admin=employee.is_admin, password=password)
+        employee.save()
+
+        return self.approve_employee(admin, CPF, employee=employee)
+
+    def approve_employee(self, admin, CPF, pk=None, employee=None):
+        employee = employee or self.models.Employee.get_one_or_empty(CPF, pk=pk)
 
         manager = self.models.Employee.create(is_admin=admin, is_approved=admin)
-        user = manager.approve_user(user) or user
-
-        return user
-
-    def approve_user(self, admin, CPF, pk):
-        user = self.models.Employee.get_one_or_empty(CPF, pk=pk)
-
-        manager = self.models.Employee.create(is_admin=admin, is_approved=admin)
-        user = manager.approve_user(user) or user
-
-        return user.is_approved
+        return manager.approve_employee(employee)
 
     def get_status_list(self):
         return [getattr(Status,s) for s in Status.__dict__ if not s.startswith("__")]
@@ -72,16 +67,16 @@ class Api:
         base_url = str(Config.FakeSiga)
         path = '/api/Dados/findOne?filter={"where":{"CPF":"' + CPF + '"}}'
 
+        data = {}
         try:
             f = urlopen(base_url + path)
+            data = json.loads(f.read().decode('utf-8'))
         except HTTPError as e:
-            return self.models.User(CPF, None)
+            pass
         except URLError as e:
-            return self.models.User(CPF, None)
+            pass
 
-        data = json.loads(f.read().decode('utf-8'))
+        is_admin = data.get("FuncionarioAdministrativo") or False
+        is_employee = data.get("Professor") or data.get("ProfessorVisitante") or data.get("FuncionarioTerceirizado") or is_admin
 
-        is_admin = data["FuncionarioAdministrativo"]
-        is_employee = data["Professor"] or data["ProfessorVisitante"] or data["FuncionarioTerceirizado"] or is_admin
-
-        return self.models.User.create(data["CPF"], data["Nome"], is_employee, is_admin)
+        return self.models.User.create(data.get("CPF",CPF), data.get("Nome",""), is_employee, is_admin)
