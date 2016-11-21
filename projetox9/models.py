@@ -206,7 +206,7 @@ class Models:
                     d["description"],
                     d["location"]["lat"],
                     d["location"]["lng"],
-                    d["place_name"],
+                    d["location"]["place_name"],
                     d["protocol_number"],
                     d["_id"],
                     d["status"],
@@ -220,10 +220,10 @@ class Models:
                 "date" : self.date,
                 "occurrence" : self.occurrence.to_dict(),
                 "location": {
+                    "place_name" : self.place_name,
                     "lat" : self.location[0],
                     "lng" : self.location[1]
                 },
-                "place_name" : self.place_name,
                 "description" : self.description,
                 "status" : self.status,
                 "feedback_date" : self.feedback_date,
