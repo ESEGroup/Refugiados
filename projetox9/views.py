@@ -19,7 +19,8 @@ class Views:
         return render_template('create-occurrence.html',
                 error=error,
                 googlemaps_key=Config.googlemaps_key,
-                occurrence_types=occurrence_types)
+                occurrence_types=occurrence_types,
+                logged = session.get("logged"))
 
     @app.route('/occurrence', methods=['GET', 'POST'])
     def occurrence():
@@ -32,7 +33,7 @@ class Views:
                 inputs = ["CPF", "protocol"]
                 obj = request.args
 
-            errors = {i:len(obj.get(i,""))>0 for i in inputs}
+            errors = { i : len(obj.get(i,"")) == 0 for i in inputs}
             errors["CPF"] = not Utils.is_CPF_valid(obj.get("CPF"))
 
             status_list = Views.api.get_status_list()
@@ -70,8 +71,8 @@ class Views:
                                 lng=data.location.lng,
                                 place_name=data.location.place_name)
 
-        return redirect(url_for('create_occurrence', error=json.dumps(errors))
-
+        return redirect(url_for('create_occurrence', error=json.dumps(errors)))
+                
     @app.route('/login', methods=['GET', 'POST'])
     def login():
         if session.get('logged'):

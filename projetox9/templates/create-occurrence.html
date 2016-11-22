@@ -10,6 +10,12 @@
 <script src="https://maps.googleapis.com/maps/api/js?key={{googlemaps_key}}&libraries=places&callback=init_map" async defer></script>
 {% endblock %}
 
+{% block menu %}
+{% if not logged %}
+<li><a href="/login">Login</a></li>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <form id='check' action='/occurrence' method='GET'>
     <h1>Checar status da ocorrência</h1>

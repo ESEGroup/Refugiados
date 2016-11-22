@@ -52,7 +52,7 @@ class Models:
 
         def __str__(self):
             return "{0} - {1}aprovado".format(
-                                            super().__str__(self)
+                                            super().__str__(self),
                                             "" if self.approved else "não ")
 
         def create(CPF="", name="", password="", is_admin=False, is_approved=False, pk=None, hash=None):
@@ -218,9 +218,9 @@ class Models:
                 "date" : self.date,
                 "occurrence" : self.occurrence.to_dict(),
                 "location": {
-                    "lat" : self.location[0],
-                    "lng" : self.location[1]
-                    "place_name" : self.place_name,
+                    "lat" : self.location.lat,
+                    "lng" : self.location.lng,
+                    "place_name" : self.location.place_name,
                 },
                 "description" : self.description,
                 "status" : self.status,
