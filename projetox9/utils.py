@@ -8,7 +8,7 @@ class Utils:
 
     @app.template_filter('bool')
     def bool(b):
-        return Config.bool_translation[b]
+        return Config.bool_translation[bool(b)]
 
     @app.template_filter('title')
     def title(txt):
@@ -23,22 +23,22 @@ class Utils:
 
     @app.template_filter('empty')
     def empty(txt):
-        if str(txt) != "None": 
+        if str(txt) != "None":
             return txt
 
         return ""
 
     @app.template_filter('optional')
     def optional(txt):
-        if (len(Utils.empty(txt)) > 0): 
+        if (len(Utils.empty(txt)) > 0):
             return txt
 
         return "-"
 
     @app.template_filter('limit_size')
     def max_size_filter(txt):
-        if len(txt) > Config.frontend_max_len_size:
-            txt = re.sub(r'\ $', '', txt[:Config.frontend_max_size-3]) + "..."
+        if len(txt) > Config.frontend_max_len:
+            txt = re.sub(r'\ $', '', txt[:Config.frontend_max_len-3]) + "..."
 
         return txt
 

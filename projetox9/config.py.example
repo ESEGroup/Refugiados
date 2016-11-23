@@ -26,6 +26,6 @@ class Config:
     projetox9 = URI("0.0.0.0", 5000)
     FakeSiga  = URI("0.0.0.0", 3000)
 
-    frontend_max_len_size = 15
+    frontend_max_len = 15
 
     bool_translation = {True:"Sim", False:"Não"}

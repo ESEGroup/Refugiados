@@ -43,6 +43,7 @@ class Models:
 
     class Employee(User):
         is_employee = True
+        is_admin = False
 
         def __init__(self, CPF, name, password=None, pk=None, is_approved=False, hash=None):
             super().__init__(CPF, name)
@@ -52,8 +53,8 @@ class Models:
 
         def __str__(self):
             return "{0} - {1}aprovado".format(
-                                            super().__str__(self),
-                                            "" if self.approved else "não ")
+                                            super().__str__(),
+                                            "" if self.is_approved else "não ")
 
         def create(CPF="", name="", password="", is_admin=False, is_approved=False, pk=None, hash=None):
             if (is_admin):
@@ -69,41 +70,41 @@ class Models:
                 return bcrypt.hashpw(password, bcrypt.gensalt())
 
         def __check_pass(password, hash):
-            if isinstance(password, str):
-                password = bytes(password, 'utf-8')
-            if isinstance(hash, str):
-                hash = bytes(hash, 'utf-8')
+            if password and hash:
+                if isinstance(password, str):
+                    password = bytes(password, 'utf-8')
+                if isinstance(hash, str):
+                    hash = bytes(hash, 'utf-8')
 
-            return bcrypt.checkpw(password, hash)
+                return bcrypt.checkpw(password, hash)
 
         def to_dict(self):
             return {
-                    "_id": self.pk,
                     "CPF": self.CPF,
                     "password": self.password,
                     "name": self.name,
                     "is_admin": self.is_admin,
                     "is_approved": self.is_approved}
 
-        def from_dict(user):
-            if not user: return None
+        def from_dict(employee):
+            if not employee: return None
             return Models.Employee.create(
-                    pk=user["_id"],
-                    CPF=user["CPF"],
-                    name=user["name"],
-                    hash=user["password"],
-                    is_admin=user["is_admin"],
-                    is_approved=user["is_approved"])
+                    pk=employee["_id"],
+                    CPF=employee["CPF"],
+                    name=employee["name"],
+                    hash=employee["password"],
+                    is_admin=employee["is_admin"],
+                    is_approved=employee["is_approved"])
 
         def empty():
-            return Models.Employee("","", "")
+            return Models.Employee("","","")
 
-        def approve_user(self, user):
-            return user
+        def approve_employee(self, employee):
+            return employee
 
-        def auth(user, password):
-            if Models.Employee.__check_pass(password, user.password):
-                return user
+        def auth(employee, password):
+            if Models.Employee.__check_pass(password, employee.password):
+                return employee
 
             return Models.Employee.empty()
 
@@ -117,15 +118,18 @@ class Models:
 
         def get_all(d):
             db = DB.connect()
-            users = db.users.find(d)
+            employees = db.users.find(d)
 
-            return [Models.Employee.from_dict(u) for u in users if u]
+            return [Models.Employee.from_dict(e) for e in employees if e]
 
         def get_one(CPF, pk=None):
             db = DB.connect()
-            user = db.users.find_one({"CPF":CPF, "_id":ObjectId(pk)})
+            d = {"CPF": CPF}
+            if pk:
+                d["_id"] = ObjectId(pk)
+            employee = db.users.find_one(d)
 
-            return Models.Employee.from_dict(user)
+            return Models.Employee.from_dict(employee)
 
         def get_one_or_empty(CPF, pk=None):
             return Models.Employee.get_one(CPF, pk) or Models.Employee.empty()
@@ -133,10 +137,10 @@ class Models:
     class Admin(Employee):
         is_admin = True
 
-        def approve_user(self, user):
-            user.is_approved = True
-            user.update()
-            return user
+        def approve_employee(self, employee):
+            employee.is_approved = True
+            employee.update()
+            return employee
 
         def __str__(self):
             return "Admin: " + super().__str__()
@@ -204,7 +208,7 @@ class Models:
                     d["description"],
                     d["location"]["lat"],
                     d["location"]["lng"],
-                    d["place_name"],
+                    d["location"]["place_name"],
                     d["protocol_number"],
                     d["_id"],
                     d["status"],

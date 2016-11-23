@@ -48,7 +48,7 @@ class Api:
 
     def signup(self, CPF, password, admin):
         employee = self.get_person_info(Utils.clean_CPF(CPF))
-        employee = self.models.Employee.create(CPF=employee.CPF, name=employee.name, is_admin=employee.is_admin, password=password)
+        employee = self.models.Employee.create(CPF=employee.CPF, name=employee.name, is_admin=employee.is_employee and employee.is_admin, password=password)
         employee.save()
 
         return self.approve_employee(admin, CPF, employee=employee)
