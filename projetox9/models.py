@@ -19,18 +19,15 @@ class DB:
 class Models:
     class User:
         is_employee = False
-        is_admin = False
 
         def __init__(self, CPF, name):
             self.CPF = CPF
             self.name = name or ""
 
         def __str__(self):
-            approved = self.is_employee and self.is_approved
-            return "{0} ({1}) - {2}".format(
+            return "{0} ({1})".format(
                             self.name,
-                            self.CPF,
-                            ("aprovado" if approved else ""))
+                            self.CPF)
 
         def empty():
             return Models.User("","")
@@ -46,12 +43,18 @@ class Models:
 
     class Employee(User):
         is_employee = True
+        is_admin = False
 
         def __init__(self, CPF, name, password=None, pk=None, is_approved=False, hash=None):
             super().__init__(CPF, name)
             self.password = hash or Models.Employee.__hash_pass(password)
             self.is_approved = is_approved
             self.pk = pk
+
+        def __str__(self):
+            return "{0} - {1}aprovado".format(
+                                            super().__str__(),
+                                            "" if self.is_approved else "não ")
 
         def create(CPF="", name="", password="", is_admin=False, is_approved=False, pk=None, hash=None):
             if (is_admin):
@@ -63,6 +66,7 @@ class Models:
             if password:
                 if isinstance(password, str):
                     password = bytes(password, 'utf-8')
+
                 return bcrypt.hashpw(password, bcrypt.gensalt())
 
         def __check_pass(password, hash):
@@ -71,6 +75,7 @@ class Models:
                     password = bytes(password, 'utf-8')
                 if isinstance(hash, str):
                     hash = bytes(hash, 'utf-8')
+
                 return bcrypt.checkpw(password, hash)
 
         def to_dict(self):
@@ -81,26 +86,27 @@ class Models:
                     "is_admin": self.is_admin,
                     "is_approved": self.is_approved}
 
-        def from_dict(user):
-            if not user: return Models.User.empty()
+        def from_dict(employee):
+            if not employee: return None
             return Models.Employee.create(
-                    CPF=user["CPF"],
-                    name=user["name"],
-                    hash=user["password"],
-                    is_admin=user["is_admin"],
-                    is_approved=user["is_approved"],
-                    pk=user["_id"])
+                    pk=employee["_id"],
+                    CPF=employee["CPF"],
+                    name=employee["name"],
+                    hash=employee["password"],
+                    is_admin=employee["is_admin"],
+                    is_approved=employee["is_approved"])
 
         def empty():
-            return Models.Employee("","")
+            return Models.Employee("","","")
 
-        def approve_user(self, user):
-            pass
+        def approve_employee(self, employee):
+            return employee
 
-        def auth(user, password):
-            if Models.Employee.__check_pass(password, user.password):
-                return user
-            return Models.User.empty()
+        def auth(employee, password):
+            if Models.Employee.__check_pass(password, employee.password):
+                return employee
+
+            return Models.Employee.empty()
 
         def save(self):
             db = DB.connect()
@@ -110,35 +116,31 @@ class Models:
             db = DB.connect()
             result = db.users.update_one({'CPF':self.CPF},{"$set":{"is_approved": self.is_approved}})
 
-        def get_all(dict):
+        def get_all(d):
             db = DB.connect()
-            users = db.users.find(dict)
+            employees = db.users.find(d)
 
-            ret = []
-            for u in users:
-                ret += [Models.Employee.from_dict(u)]
-            return ret
+            return [Models.Employee.from_dict(e) for e in employees if e]
 
         def get_one(CPF, pk=None):
             db = DB.connect()
-            dict = {"CPF":CPF}
+            d = {"CPF": CPF}
             if pk:
-                dict["_id"] = ObjectId(pk)
+                d["_id"] = ObjectId(pk)
+            employee = db.users.find_one(d)
 
-            user = db.users.find_one(dict)
-            if user:
-                return Models.Employee.from_dict(user)
+            return Models.Employee.from_dict(employee)
 
         def get_one_or_empty(CPF, pk=None):
-            return Models.Employee.get_one(CPF, pk=pk) or Models.User.empty()
+            return Models.Employee.get_one(CPF, pk) or Models.Employee.empty()
 
     class Admin(Employee):
         is_admin = True
 
-        def approve_user(self, user):
-            user.is_approved = True
-            user.update()
-            return user
+        def approve_employee(self, employee):
+            employee.is_approved = True
+            employee.update()
+            return employee
 
         def __str__(self):
             return "Admin: " + super().__str__()
@@ -152,18 +154,17 @@ class Models:
             return {"_id":self.pk, "name":self.name}
 
         def from_dict(d):
-            if not d: return Models.OccurrenceType.empty()
+            if not d: return None
             return Models.OccurrenceType(d["_id"], d["name"])
+
+        def empty():
+            return Models.OccurrenceType("","")
 
         def get_one(pk):
             db = DB.connect()
             oc_type = db.occurrence_types.find_one({'_id': ObjectId(pk)})
 
-            if oc_type:
-                return Models.OccurrenceType.from_dict(oc_type)
-
-        def empty():
-            return Models.OccurrenceType("","")
+            return Models.OccurrenceType.from_dict(oc_type)
 
         def get_one_or_empty(pk):
             return Models.OccurrenceType.get_one(pk) or Models.OccurrenceType.empty()
@@ -172,14 +173,16 @@ class Models:
             db = DB.connect()
             types = db.occurrence_types.find()
 
-            ret = []
-            for t in types:
-                ret += [Models.OccurrenceType.from_dict(t)]
-
-            return ret
+            return [Models.OccurrenceType.from_dict(t) for t in types if t]
 
         def __str__(self):
             return self.name + " (" + str(self.pk) + ")"
+
+    class Location:
+        def __init__(self, lat, lng, place_name):
+            self.lat = lat
+            self.lng = lng
+            self.place_name = place_name
 
     class Occurrence:
         def __init__(self, CPF, name, date, occurrence, description, lat, lng, place_name, protocol_number=None, pk=None, status=None, feedback_date=None, feedback=None):
@@ -188,8 +191,7 @@ class Models:
             self.name = name
             self.date = date
             self.occurrence = occurrence
-            self.location = (lat, lng)
-            self.place_name = place_name
+            self.location = Models.Location(lat, lng, place_name)
             self.description = description
             self.status = status or Status.NOT_RESOLVED
             self.feedback_date = feedback_date
@@ -220,9 +222,9 @@ class Models:
                 "date" : self.date,
                 "occurrence" : self.occurrence.to_dict(),
                 "location": {
-                    "place_name" : self.place_name,
-                    "lat" : self.location[0],
-                    "lng" : self.location[1]
+                    "lat" : self.location.lat,
+                    "lng" : self.location.lng,
+                    "place_name" : self.location.place_name,
                 },
                 "description" : self.description,
                 "status" : self.status,
@@ -234,21 +236,17 @@ class Models:
             db = DB.connect()
             occurrences = db.occurrences.find()
 
-            ret = []
-            for o in occurrences:
-                ret += [Models.Occurrence.from_dict(o)]
-
-            return ret
+            return [Models.Occurrence.from_dict(o) for o in occurrences if o]
 
         def get_one(CPF, protocol):
             db = DB.connect()
             occurrence = db.occurrences.find_one({'CPF':CPF,'protocol_number':protocol})
+
             return Models.Occurrence.from_dict(occurrence)
 
         def save(self):
             db = DB.connect()
             result = db.occurrences.insert_one(self.to_dict())
-            return result
 
         def update(self):
             db = DB.connect()
@@ -258,4 +256,4 @@ class Models:
                             {'$set': self.to_dict()})
 
         def __str__(self):
-            return "[" + self.protocol_number + "] " + str(self.name) + " reportou " + self.occurrence.name.lower() + " em " + self.place_name + " às " + self.date.split(" ")[1] + " de " + self.date.split(" ")[0]
+            return "[" + self.protocol_number + "] " + str(self.name) + " reportou " + self.occurrence.name.lower() + " em " + self.location.place_name + " às " + self.date.split(" ")[1] + " de " + self.date.split(" ")[0]

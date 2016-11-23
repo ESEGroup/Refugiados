@@ -8,7 +8,7 @@
 {% endblock %}
 {% block content %}
 <div id='info'>
-    {% if admin %}
+    {% if logged %}
     <form method="POST" action="update_occurrence">
         <input style="display:none" name="CPF" value="{{CPF}}">
         <input style="display:none" name="protocol" value="{{protocol_number}}">
@@ -24,7 +24,7 @@
     <div><b>Nome: </b><p>{{(name | title) | optional}}</p></div>
     <div><b>Descrição: </b><p>{{(description | title) | optional}}</p></div>
     <div><b>Status: </b><p>
-        {% if admin %}
+        {% if logged %}
             <select name='status'>
                 {% for value in status_list %}
                 <option value="{{value}}"{% if value == status %}selected="selected"{% endif %}>{{value}}</option>
@@ -35,25 +35,25 @@
         {% endif %}
     </p></div>
     <div><b>Data de resolução: </b><p>
-        {% if admin %}
+        {% if logged %}
             <input name='feedback_date' class='flatpickr' type='text' value='{{feedback_date | empty}}'>
         {% else %}
             {{feedback_date | optional}}
         {% endif %}
     </p></div>
     <div><b>Feedback: </b><p>
-        {% if admin %}
+        {% if logged %}
             <input name='feedback' type='text' value='{{feedback | empty}}'>
         {% else %}
             {{feedback | optional}}
         {% endif %}
     </p></div>
     <div><b>Local: </b><p>{{place_name | title}}</p></div>
-    {% if admin %}
+    {% if logged %}
     <div><input class='submit' type='submit' value="Atualizar"></div>
     {% endif %}
     <img src="https://maps.googleapis.com/maps/api/staticmap?key={{googlemaps_key}}&center={{lat}},{{lng}}&zoom=17&size=600x300&maptype=roadmap&markers=color:blue|{{lat}},{{lng}}" boder="0"></img>
-    {% if admin %}
+    {% if logged %}
     </form>
     {% endif %}
 </div>
