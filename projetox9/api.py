@@ -15,8 +15,7 @@ class Api:
         return self.models.OccurrenceType.get_one_or_empty(pk)
 
     def get_occurrences(self):
-        occurrences = self.models.Occurrence.get_all()
-        return occurrences
+        return self.models.Occurrence.get_all()
 
     def get_occurrence(self, CPF, protocol):
         return self.models.Occurrence.get_one(Utils.clean_CPF(CPF), protocol.upper())
@@ -35,23 +34,27 @@ class Api:
 
     def update_occurrence(self, CPF, protocol, status, feedback_date, feedback):
         occurrence = self.models.Occurrence.get_one(CPF, protocol)
-        occurrence.status = status
-        occurrence.feedback_date = feedback_date
-        occurrence.feedback = feedback
-        occurrence.update()
+        if occurrence:
+            occurrence.status = status
+            occurrence.feedback_date = feedback_date
+            occurrence.feedback = feedback
+            occurrence.update()
 
     def login(self, CPF, password):
         employee = self.models.Employee.get_one_or_empty(Utils.clean_CPF(CPF))
         employee = self.models.Employee.auth(employee, password)
 
-        return employee.is_approved, employee.is_approved and employee.is_admin
+        logged = employee.is_approved
+        admin = logged and employee.is_admin
+
+        return logged, admin
 
     def signup(self, CPF, password, admin):
         employee = self.get_person_info(Utils.clean_CPF(CPF))
         employee = self.models.Employee.create(CPF=employee.CPF, name=employee.name, is_admin=employee.is_employee and employee.is_admin, password=password)
         employee.save()
 
-        return self.approve_employee(admin, CPF, employee=employee)
+        return self.approve_employee(admin, employee.CPF, employee=employee)
 
     def approve_employee(self, admin, CPF, pk=None, employee=None):
         employee = employee or self.models.Employee.get_one_or_empty(CPF, pk=pk)
@@ -71,8 +74,6 @@ class Api:
         try:
             f = urlopen(base_url + path)
             data = json.loads(f.read().decode('utf-8'))
-        except HTTPError as e:
-            pass
         except URLError as e:
             pass
 
