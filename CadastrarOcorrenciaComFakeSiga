@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://ec2-52-67-192-182.sa-east-1.compute.amazonaws.com/" />
+<title>CadastrarOcorrenciaComFakeSiga</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">CadastrarOcorrenciaComFakeSiga</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTitle</td>
+	<td>Cadastrar ocorrência</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=#register &gt; div &gt; input[name=&quot;CPF&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>name=occurrence</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>css=#register &gt; div &gt; input[name=&quot;CPF&quot;]</td>
+	<td>910.312.550-52</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//div[@id='map']/div/div/div/div[3]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//div[@id='map']/div/div/div/div[3]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=description</td>
+	<td>Arrastão</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//input[@value='Cadastrar']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=h1</td>
+	<td>Protocolo</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//div[@id='info']/div[6]/p</td>
+	<td>Breno Bernard Nicolau De Franca</td>
+</tr>
+
+</tbody></table>
+</body>
+</html>
