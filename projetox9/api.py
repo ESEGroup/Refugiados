@@ -9,60 +9,58 @@ class Api:
     models = Models()
 
     def get_occurrence_types(self):
-        return Api.models.OccurrenceType.get_all()
+        return self.models.OccurrenceType.get_all()
 
     def get_occurrence_type(self, pk):
-        return Api.models.OccurrenceType.get_one_or_empty(pk)
+        return self.models.OccurrenceType.get_one_or_empty(pk)
 
     def get_occurrences(self):
-        occurrences = Api.models.Occurrence.get_all()
-        return occurrences
+        return self.models.Occurrence.get_all()
 
     def get_occurrence(self, CPF, protocol):
-        return Api.models.Occurrence.get_one(Utils.clean_CPF(CPF), protocol)
+        return self.models.Occurrence.get_one(Utils.clean_CPF(CPF), protocol.upper())
 
-    def get_users_not_approved(self, admin=True):
+    def get_employees_not_approved(self, admin):
         if not admin: return
-        return  Api.models.Employee.get_all({"is_approved":False})
+        return self.models.Employee.get_all({"is_approved":False})
 
     def set_occurrence(self, CPF, oc_type_pk, date, description, lat, lng, place_name):
         user = self.get_person_info(Utils.clean_CPF(CPF))
         occurrence_type = self.get_occurrence_type(oc_type_pk)
 
-        oc = Api.models.Occurrence(user.CPF, user.name, date, occurrence_type, description, lat, lng, place_name)
+        oc = self.models.Occurrence(user.CPF, user.name, date, occurrence_type, description, lat, lng, place_name)
         oc.save()
-        return(oc)
+        return oc
 
     def update_occurrence(self, CPF, protocol, status, feedback_date, feedback):
-        occurrence = Api.models.Occurrence.get_one(CPF, protocol)
-        occurrence.status = status
-        occurrence.feedback_date = feedback_date
-        occurrence.feedback = feedback
-        occurrence.update()
+        occurrence = self.models.Occurrence.get_one(CPF, protocol)
+        if occurrence:
+            occurrence.status = status
+            occurrence.feedback_date = feedback_date
+            occurrence.feedback = feedback
+            occurrence.update()
 
     def login(self, CPF, password):
-        user = Api.models.Employee.get_one_or_empty(Utils.clean_CPF(CPF))
-        user = Api.models.Employee.auth(user, password)
+        employee = self.models.Employee.get_one_or_empty(Utils.clean_CPF(CPF))
+        employee = self.models.Employee.auth(employee, password)
 
-        logged = user.is_employee and user.is_approved
-        return logged, logged and user.is_admin
+        logged = employee.is_approved
+        admin = logged and employee.is_admin
+
+        return logged, admin
 
     def signup(self, CPF, password, admin):
-        user = self.get_person_info(Utils.clean_CPF(CPF))
-        user = Api.models.Employee.create(CPF=user.CPF, name=user.name, is_admin=user.is_admin, password=password)
-        user.save()
+        employee = self.get_person_info(Utils.clean_CPF(CPF))
+        employee = self.models.Employee.create(CPF=employee.CPF, name=employee.name, is_admin=employee.is_employee and employee.is_admin, password=password)
+        employee.save()
 
-        manager = Api.models.Employee.create(is_admin=admin, is_approved=True)
-        user = manager.approve_user(user) or user
+        return self.approve_employee(admin, employee.CPF, employee=employee)
 
-        return user
+    def approve_employee(self, admin, CPF, pk=None, employee=None):
+        employee = employee or self.models.Employee.get_one_or_empty(CPF, pk=pk)
 
-    def approve_user(self, admin, CPF, pk):
-        user = Api.models.Employee.get_one_or_empty(CPF, pk=pk)
-
-        manager = Api.models.Employee.create(is_admin=admin, is_approved=True)
-        user = manager.approve_user(user)
-        return user.is_employee and user.is_approved
+        manager = self.models.Employee.create(is_admin=admin, is_approved=admin)
+        return manager.approve_employee(employee)
 
     def get_status_list(self):
         return [getattr(Status,s) for s in Status.__dict__ if not s.startswith("__")]
@@ -72,16 +70,14 @@ class Api:
         base_url = str(Config.FakeSiga)
         path = '/api/Dados/findOne?filter={"where":{"CPF":"' + CPF + '"}}'
 
+        data = {}
         try:
             f = urlopen(base_url + path)
-        except HTTPError as e:
-            return Api.models.User(CPF, None)
+            data = json.loads(f.read().decode('utf-8'))
         except URLError as e:
-            return Api.models.User(CPF, None)
+            pass
 
-        data = json.loads(f.read().decode('utf-8'))
+        is_admin = data.get("FuncionarioAdministrativo") or False
+        is_employee = data.get("Professor") or data.get("ProfessorVisitante") or data.get("FuncionarioTerceirizado") or is_admin
 
-        is_admin = data["FuncionarioAdministrativo"]
-        is_employee = data["Professor"] or data["ProfessorVisitante"] or data["FuncionarioTerceirizado"] or is_admin
-
-        return Api.models.User.create(data["CPF"], data["Nome"], is_employee, is_admin)
+        return self.models.User.create(data.get("CPF",CPF), data.get("Nome",""), is_employee, is_admin)

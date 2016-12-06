@@ -4,7 +4,7 @@
 <script src="static/js/manage.js"></script>
 <script>
     {% for oc in occurrences %}
-        window.markers_location.push(["{{oc.location[0]}}", "{{oc.location[1]}}"]);
+        window.markers_location.push(["{{oc.location.lat}}", "{{oc.location.lng}}"]);
     {% endfor %}
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key={{googlemaps_key}}&libraries=places&callback=init_map" async defer></script>
@@ -18,7 +18,6 @@
             <tr>
                 <th>CPF</th>
                 <th>Nome</th>
-                <th>Funcionário</th>
                 <th>Admin</th>
                 <th>Aprovar</th>
             </tr>
@@ -28,7 +27,6 @@
             <tr>
                 <td>{{e.CPF | format_CPF}}</td>
                 <td>{{e.name}}</td>
-                <td>{{e.is_employee | bool}}</td>
                 <td>{{e.is_admin | bool}}</td>
                 <td><a style="outline: none" href="approve?pk={{e.pk}}&CPF={{e.CPF}}"><div class='approve'></div></a></td>
             </tr>
@@ -63,7 +61,7 @@
                 <td>{{oc.name | limit_size}}</td>
                 <td>{{oc.date}}</td>
                 <td>{{oc.description | limit_size}}</td>
-                <td>{{oc.place_name | limit_size}}</td>
+                <td>{{oc.location.place_name | limit_size}}</td>
                 <td>{{oc.status}}</td>
                 <td>{{(oc.feedback | optional) | limit_size}}</td>
                 <td><a style="outline: none" href="occurrence?protocol={{oc.protocol_number}}&CPF={{oc.CPF}}"><div class='edit'></div></a></td>

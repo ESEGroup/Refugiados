@@ -3,64 +3,64 @@ from .api import Api
 from .utils import Utils
 from flask import render_template, request, redirect, url_for, session
 import json
+import re
 
 class Views:
     api = Api()
 
     @app.route('/')
     def create_occurrence():
-        error = json.loads(request.args.get("error", "{}"))
+        logged = session.get("logged")
+
+        request.args = request.args or {}
+        error = json.loads(request.args.get("error") or "{}")
 
         occurrence_types = Views.api.get_occurrence_types()
+
         return render_template('create-occurrence.html',
-                error=error,
-                googlemaps_key=Config.googlemaps_key,
-                occurrence_types=occurrence_types)
+               googlemaps_key=Config.googlemaps_key,
+               error=error,
+               logged=logged,
+               occurrence_types=occurrence_types)
 
     @app.route('/occurrence', methods=['GET', 'POST'])
     def occurrence():
+        logged = session.get("logged")
+        form = request.form or request.args
         errors = {}
-        admin = session.get("admin")
-        if request.form or request.args:
-            if request.form:
-                inputs = ["CPF", "occurrence", "date", "lat", "lng", "place_name"]
-                obj = request.form
-            else:
-                inputs = ["CPF", "protocol"]
-                obj = request.args
 
-            for i in inputs:
-                if not obj.get(i):
-                    errors[i] = True
+        if form:
+            fields = {"POST": ["CPF",
+                               "occurrence",
+                               "date",
+                               "description",
+                               "lat",
+                               "lng",
+                               "place_name"],
+                     "GET": ["CPF",
+                             "protocol"]
+                     }
 
-            if not Utils.is_CPF_valid(obj.get("CPF")):
-                errors["CPF"] = True
+            # Validate form
+            errors = { field: len(form.get(field,"")) == 0 for field in fields[request.method]}
+            errors["CPF"] = not Utils.is_CPF_valid(form.get("CPF"))
 
             status_list = Views.api.get_status_list()
 
-            if not errors:
-                if request.form:
-                    data = Views.api.set_occurrence(
-                                request.form["CPF"],
-                                request.form["occurrence"],
-                                request.form["date"],
-                                request.form["description"],
-                                request.form["lat"],
-                                request.form["lng"],
-                                request.form["place_name"])
-                else:
-                    data = Views.api.get_occurrence(
-                                request.args["CPF"],
-                                request.args["protocol"].upper())
+            if not any(errors.values()):
+                api_function = {"POST": Views.api.set_occurrence,
+                                "GET": Views.api.get_occurrence}
+                args = (form[field] for field in fields[request.method])
+
+                data = api_function[request.method](*args)
 
                 if data:
                     return render_template('occurrence.html',
-				googlemaps_key=Config.googlemaps_key,
-                                admin=admin,
+                                logged=logged,
+                                googlemaps_key=Config.googlemaps_key,
                                 protocol_number=data.protocol_number,
                                 date=data.date,
                                 occurrence=data.occurrence.name,
-                                place_name=data.place_name,
                                 description=data.description,
                                 status=data.status,
                                 feedback_date=data.feedback_date,
@@ -68,17 +68,21 @@ class Views:
                                 status_list=status_list,
                                 CPF=data.CPF,
                                 name=data.name,
-                                lat=data.location[0],
-                                lng=data.location[1])
-        return redirect(url_for('create_occurrence', error=json.dumps(errors), admin=admin))
+                                lat=data.location.lat,
+                                lng=data.location.lng,
+                                place_name=data.location.place_name)
+
+        return redirect(url_for('create_occurrence', error=json.dumps(errors)))
 
     @app.route('/login', methods=['GET', 'POST'])
     def login():
+        form = request.form or {}
         if session.get('logged'):
             return redirect(url_for('manage'))
-        elif request.method == 'POST' and request.form and request.form.get('CPF') and request.form.get('password'):
-            CPF, password = request.form['CPF'], request.form['password']
-            session['logged'], session['admin'] = Views.api.login(CPF, password)
+        elif request.method == 'POST' and form.get('CPF') and form.get('password'):
+            session['logged'], session['admin'] = Views.api.login(form.get("CPF"),
+                                                                  form.get("password"))
+
             return redirect(url_for('manage'))
 
         return render_template('sign.html', title="Login", path="login", action="Entrar")
@@ -92,18 +96,24 @@ class Views:
 
         if request.method == "POST" and request.form.get("CPF") and request.form.get("password"):
             CPF, password = request.form.get('CPF'), request.form.get('password')
-            user = Views.api.signup(CPF, password, admin)
+            Views.api.signup(CPF, password, admin)
+
             return redirect(url_for('manage'))
-        return render_template('sign.html', title="Cadastro", path='signup', action="Cadastrar")
+
+        return render_template('sign.html',
+                title="Cadastro",
+                path=re.sub(r'^\/','',url_for('create_account')),
+                action="Cadastrar")
 
     @app.route('/manage')
     def manage():
-        logged, admin = session.get('logged'), session.get('admin')
+        logged, admin = session.get("logged"), session.get("admin")
         if not logged:
             return redirect(url_for("login"))
 
         occurrences = Views.api.get_occurrences()
-        employees = Views.api.get_users_not_approved(admin=admin)
+        employees = Views.api.get_employees_not_approved(admin=admin)
+
         return render_template('manage.html',
                 admin=admin,
                 googlemaps_key=Config.googlemaps_key,
@@ -112,11 +122,12 @@ class Views:
 
     @app.route('/approve')
     def approve():
-        pk, CPF = request.args.get('pk'), request.args.get('CPF')
         admin = session.get('admin')
 
-        if admin and pk and CPF:
-            is_approved = Views.api.approve_user(admin, CPF, pk)
+        request.args = request.args or {}
+        pk, CPF = request.args.get('pk'), request.args.get('CPF')
+
+        Views.api.approve_employee(admin, CPF, pk)
 
         return redirect(url_for("manage"))
 
@@ -125,21 +136,21 @@ class Views:
         if not session.get('logged'):
             return redirect(url_for("login"))
 
-        f = request.form
-        CPF, protocol, status = f.get("CPF"), f.get("protocol"), f.get("status")
-        feedback, feedback_date = f.get("feedback"), f.get("feedback_date")
+        form = request.form or {}
+        fields = ["CPF",
+                  "protocol",
+                  "status",
+                  "feedback_date",
+                  "feedback"]
 
-        if CPF and protocol and status and feedback and feedback_date:
-            Views.api.update_occurrence(
-                        CPF,
-                        protocol,
-                        status,
-                        feedback_date,
-                        feedback)
+        args = [form.get(field) for field in fields]
+
+        Views.api.update_occurrence(*args)
 
         return redirect(url_for("manage"))
 
     @app.route('/logout')
     def logout():
         session['logged'], session['admin'] = False, False
+
         return redirect(url_for('create_occurrence'))

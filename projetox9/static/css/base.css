@@ -9,6 +9,10 @@ a:active {
     outline:0;
 }
 
+#top_menu li {
+    display: inline-block;
+}
+
 #top_menu ul, a {
     width: auto;
     text-decoration: none;
