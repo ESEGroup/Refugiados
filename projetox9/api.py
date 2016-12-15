@@ -56,8 +56,10 @@ class Api:
 
         return self.approve_employee(admin, employee.CPF, employee=employee)
 
-    def approve_employee(self, admin, CPF, pk=None, employee=None):
+    def approve_employee(self, admin, CPF, pk=None, name=None, employee=None):
         employee = employee or self.models.Employee.get_one_or_empty(CPF, pk=pk)
+        if name and name != "":
+            employee.update({"name": name})
 
         manager = self.models.Employee.create(is_admin=admin, is_approved=admin)
         return manager.approve_employee(employee)

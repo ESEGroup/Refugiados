@@ -112,9 +112,9 @@ class Models:
             db = DB.connect()
             result = db.users.insert_one(self.to_dict())
 
-        def update(self):
+        def update(self, set_dict):
             db = DB.connect()
-            result = db.users.update_one({'CPF':self.CPF},{"$set":{"is_approved": self.is_approved}})
+            result = db.users.update_one({'CPF':self.CPF},{"$set":set_dict})
 
         def get_all(d):
             db = DB.connect()
@@ -138,8 +138,7 @@ class Models:
         is_admin = True
 
         def approve_employee(self, employee):
-            employee.is_approved = True
-            employee.update()
+            employee.update({"is_approved": True})
             return employee
 
         def __str__(self):
@@ -234,7 +233,7 @@ class Models:
 
         def get_all():
             db = DB.connect()
-            occurrences = db.occurrences.find()
+            occurrences = db.occurrences.find().sort('date').limit(Config.manager_N_last_occurrences)
 
             return [Models.Occurrence.from_dict(o) for o in occurrences if o]
 

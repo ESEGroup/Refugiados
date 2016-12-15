@@ -29,10 +29,26 @@
     background-size: contain;
 }
 
+#content input.approve {
+    background-color: transparent !important;
+    border: none !important;
+    padding; 0 !important;
+}
+
+#content input.approve:hover {
+    cursor: pointer;
+}
+
 #content .approve {
     width: 29px;
     height: 29px;
-    margin: 0 auto;
     background-image: url("../img/approve.png");
+    background-size: contain;
+}
+
+#content .alert {
+    width: 29px;
+    height: 29px;
+    background-image: url("../img/alert.png");
     background-size: contain;
 }

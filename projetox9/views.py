@@ -4,6 +4,7 @@ from .utils import Utils
 from flask import render_template, request, redirect, url_for, session
 import json
 import re
+from datetime import datetime, timedelta
 
 class Views:
     api = Api()
@@ -85,7 +86,10 @@ class Views:
 
             return redirect(url_for('manage'))
 
-        return render_template('sign.html', title="Login", path="login", action="Entrar")
+        return render_template('sign.html',
+                               title="Login",
+                               path=re.sub(r'^\/','',url_for("login")),
+                               action="Entrar")
 
 
     @app.route('/signup', methods=['GET', 'POST'])
@@ -114,11 +118,14 @@ class Views:
         occurrences = Views.api.get_occurrences()
         employees = Views.api.get_employees_not_approved(admin=admin)
 
+        date_range = (datetime.now() - timedelta(minutes=Config.current_occurrences_range_minutes)).strftime("%d/%m/%Y %H:%M")
+
         return render_template('manage.html',
                 admin=admin,
                 googlemaps_key=Config.googlemaps_key,
                 employees=employees,
-                occurrences=occurrences)
+                occurrences=occurrences,
+                occurrences_date_range=date_range)
 
     @app.route('/approve')
     def approve():
@@ -126,8 +133,9 @@ class Views:
 
         request.args = request.args or {}
         pk, CPF = request.args.get('pk'), request.args.get('CPF')
+        name = request.args.get('name')
 
-        Views.api.approve_employee(admin, CPF, pk)
+        Views.api.approve_employee(admin, CPF, pk, name)
 
         return redirect(url_for("manage"))
 

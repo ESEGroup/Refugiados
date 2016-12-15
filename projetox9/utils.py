@@ -1,5 +1,6 @@
 import re
 from projetox9 import app, Config
+from datetime import datetime
 
 class Utils:
     @app.template_filter('len')
@@ -63,3 +64,14 @@ class Utils:
     def clean_CPF(CPF):
         CPF = CPF or ""
         return re.sub(r'\D','',CPF)
+
+    @app.template_filter('name_or_input')
+    def name_or_input(value):
+        if value == "" or value == "None":
+            return "<input type='text' name='name'>"
+        else:
+            return value
+
+    @app.template_filter('to_date')
+    def to_date(value):
+        return datetime.strptime(value, "%d/%m/%Y %H:%M")

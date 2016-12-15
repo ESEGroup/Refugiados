@@ -29,3 +29,6 @@ class Config:
     frontend_max_len = 15
 
     bool_translation = {True:"Sim", False:"Não"}
+
+    manager_N_last_occurrences = 40
+    current_occurrences_range_minutes = 10
