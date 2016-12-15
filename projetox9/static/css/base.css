@@ -11,6 +11,7 @@ a:active {
 
 #top_menu li {
     display: inline-block;
+    background-color: white;
 }
 
 #top_menu ul, a {
