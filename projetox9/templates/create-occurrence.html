@@ -13,6 +13,9 @@
 {% block menu %}
 {% if not logged %}
 <li><a href="/login">Login</a></li>
+{% else %}
+<li><a href="/signup">Cadastrar usuário</a></li>
+<li><a href="/logout">Logout</a></li>
 {% endif %}
 {% endblock %}
 

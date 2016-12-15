@@ -10,6 +10,10 @@
 <script src="https://maps.googleapis.com/maps/api/js?key={{googlemaps_key}}&libraries=places&callback=init_map" async defer></script>
 <title>Gerenciar</title>
 {% endblock %}
+{%block menu%}
+<li><a href="/signup">Cadastrar usuário</a></li>
+<li><a href="/logout">Logout</a></li>
+{%endblock%}
 {% block content %}
 {% if admin and (employees | len) %}
 <div>
