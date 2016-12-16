@@ -67,7 +67,7 @@ class Utils:
 
     @app.template_filter('name_or_input')
     def name_or_input(value):
-        if value == "" or value == "None":
+        if value in ["", "-", "None"]:
             return "<input type='text' name='name'>"
         else:
             return value
@@ -75,3 +75,9 @@ class Utils:
     @app.template_filter('to_date')
     def to_date(value):
         return datetime.strptime(value, "%d/%m/%Y %H:%M")
+
+    def to_timestamp(date):
+        return Utils.to_date(date).timestamp()
+
+    def from_timestamp(date):
+        return datetime.fromtimestamp(date).strftime("%d/%m/%Y %H:%M")

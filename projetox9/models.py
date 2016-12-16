@@ -1,9 +1,10 @@
 import bcrypt
-from pymongo import MongoClient
+from pymongo import MongoClient, DESCENDING
 from bson.objectid import ObjectId
 from os import urandom
 import binascii
 from projetox9 import Config
+from .utils import Utils
 
 class Status:
     NOT_RESOLVED = "Não resolvido"
@@ -202,7 +203,7 @@ class Models:
             return Models.Occurrence(
                     d["CPF"],
                     d["name"],
-                    d["date"],
+                    Utils.from_timestamp(d["date"]),
                     Models.OccurrenceType.from_dict(d["occurrence"]),
                     d["description"],
                     d["location"]["lat"],
@@ -218,7 +219,7 @@ class Models:
             return {
                 "CPF" : self.CPF,
                 "name" : self.name,
-                "date" : self.date,
+                "date" : Utils.to_timestamp(self.date),
                 "occurrence" : self.occurrence.to_dict(),
                 "location": {
                     "lat" : self.location.lat,
@@ -233,7 +234,7 @@ class Models:
 
         def get_all():
             db = DB.connect()
-            occurrences = db.occurrences.find().sort('date').limit(Config.manager_N_last_occurrences)
+            occurrences = db.occurrences.find().sort('date', DESCENDING).limit(Config.manager_N_last_occurrences)
 
             return [Models.Occurrence.from_dict(o) for o in occurrences if o]
 

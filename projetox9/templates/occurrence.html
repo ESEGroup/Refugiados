@@ -6,6 +6,15 @@
 <script src="static/js/flatpickr.min.js"></script>
 <script src="static/js/occurrence.js"></script>
 {% endblock %}
+{% block menu %}
+{% if logged %}
+<li><a href="/signup">Cadastrar usuário</a></li>
+<li><a href="/manage">Administrar</a></li>
+<li class='menu_right'><a href="/logout">Logout</a></li>
+{% else %}
+<li><a href="/login">Login</a></li>
+{% endif %}
+{% endblock %}
 {% block content %}
 <div id='info'>
     {% if logged %}

@@ -14,6 +14,10 @@ a:active {
     background-color: white;
 }
 
+#top_menu ul {
+    padding: 0 40px;
+}
+
 #top_menu ul, a {
     width: auto;
     text-decoration: none;
@@ -45,4 +49,8 @@ a:active {
 
 .hide {
     display: none;
+}
+
+.menu_right {
+    float: right;
 }

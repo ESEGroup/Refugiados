@@ -107,7 +107,8 @@ class Views:
         return render_template('sign.html',
                 title="Cadastro",
                 path=re.sub(r'^\/','',url_for('create_account')),
-                action="Cadastrar")
+                action="Cadastrar",
+                logged=logged)
 
     @app.route('/manage')
     def manage():

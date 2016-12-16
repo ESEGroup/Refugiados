@@ -6,6 +6,13 @@
 <link rel='stylesheet' type='text/css' href='static/css/form.css'>
 {% endblock %}
 
+{% block menu %}
+{% if logged %}
+<li><a href="/manage">Administrar</a></li>
+<li class='menu_right'><a href="/logout">Logout</a></li>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <form action='/{{path}}' method="POST">
     <div>
