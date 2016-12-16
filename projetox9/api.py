@@ -54,7 +54,10 @@ class Api:
         employee = self.models.Employee.create(CPF=employee.CPF, name=employee.name, is_admin=employee.is_employee and employee.is_admin, password=password)
         employee.save()
 
-        return self.approve_employee(admin, employee.CPF, employee=employee)
+        if employee.name != "":
+            return self.approve_employee(admin, employee.CPF, employee=employee)
+        else:
+            return employee
 
     def approve_employee(self, admin, CPF, pk=None, name=None, employee=None):
         employee = employee or self.models.Employee.get_one_or_empty(CPF, pk=pk)
