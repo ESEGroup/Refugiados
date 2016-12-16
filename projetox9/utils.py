@@ -1,5 +1,5 @@
 import re
-from projetox9 import app, Config
+from ..projetox9 import app, Config
 from datetime import datetime
 
 class Utils:

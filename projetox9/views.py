@@ -1,4 +1,4 @@
-from projetox9 import app, Config
+from ..projetox9 import app, Config
 from .api import Api
 from .utils import Utils
 from flask import render_template, request, redirect, url_for, session

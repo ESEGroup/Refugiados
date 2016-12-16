@@ -1,7 +1,7 @@
 import json
 from urllib.request import urlopen
 from urllib.error import HTTPError, URLError
-from projetox9 import Config
+from ..projetox9 import Config
 from .models import Models, Status
 from .utils import Utils
 

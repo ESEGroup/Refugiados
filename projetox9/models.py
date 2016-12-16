@@ -3,7 +3,7 @@ from pymongo import MongoClient, DESCENDING
 from bson.objectid import ObjectId
 from os import urandom
 import binascii
-from projetox9 import Config
+from ..projetox9 import Config
 from .utils import Utils
 
 class Status:
