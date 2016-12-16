@@ -76,8 +76,11 @@ class Utils:
     def to_date(value):
         return datetime.strptime(value, "%d/%m/%Y %H:%M")
 
+    def format_date(value):
+        return datetime.strftime(value, "%d/%m/%Y %H:%M")
+
     def to_timestamp(date):
         return Utils.to_date(date).timestamp()
 
     def from_timestamp(date):
-        return datetime.fromtimestamp(date).strftime("%d/%m/%Y %H:%M")
+        return Utils.format_date(datetime.fromtimestamp(date))
