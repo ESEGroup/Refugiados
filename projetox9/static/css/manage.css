@@ -12,6 +12,15 @@
     text-align: center;
 }
 
+#messagebox {
+    width: 80%;
+    margin: 5% auto;
+    font-size: 16px;
+    background-color: #ccc;
+    padding: 20px;
+    text-align: center;
+}
+
 #content table tr td {
     padding: 5px 0;
 }

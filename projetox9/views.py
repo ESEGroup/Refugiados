@@ -101,6 +101,7 @@ class Views:
         if request.method == "POST" and request.form.get("CPF") and request.form.get("password"):
             CPF, password = request.form.get('CPF'), request.form.get('password')
             Views.api.signup(CPF, password, admin)
+            session['messages'] = "Usuário " + CPF + " cadastrado com sucesso!"
 
             return redirect(url_for('manage'))
 
@@ -115,18 +116,30 @@ class Views:
         logged, admin = session.get("logged"), session.get("admin")
         if not logged:
             return redirect(url_for("login"))
-
+        
         occurrences = Views.api.get_occurrences()
         employees = Views.api.get_employees_not_approved(admin=admin)
 
-        date_range = Utils.format_date(datetime.now() - timedelta(minutes=Config.current_occurrences_range_minutes)
+        date_range = Utils.format_date(datetime.now() - timedelta(minutes=Config.current_occurrences_range_minutes))
+        
+        message = session['messages']
+        session['messages'] = None
+        
+        if message != None:   
+            return render_template('manage.html',
+                    admin                  = admin,
+                    googlemaps_key         = Config.googlemaps_key,
+                    employees              = employees,
+                    occurrences            = occurrences,
+                    occurrences_date_range = date_range,
+                    message                = message)
 
         return render_template('manage.html',
-                admin=admin,
-                googlemaps_key=Config.googlemaps_key,
-                employees=employees,
-                occurrences=occurrences,
-                occurrences_date_range=date_range)
+                    admin=admin,
+                    googlemaps_key=Config.googlemaps_key,
+                    employees=employees,
+                    occurrences=occurrences,
+                    occurrences_date_range=date_range)
 
     @app.route('/approve')
     def approve():
