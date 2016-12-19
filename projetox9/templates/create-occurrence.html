@@ -16,6 +16,7 @@
 {% else %}
 <li><a href="/signup">Cadastrar usuário</a></li>
 <li><a href="/manage">Administrar</a></li>
+<li><a href="/charts">Gráficos</a></li>
 <li class='menu_right'><a href="/logout">Logout</a></li>
 {% endif %}
 {% endblock %}
@@ -51,6 +52,11 @@
         <p>CPF</p>
         <input class='CPF' name='CPF' type='text'>
         <div class='error {% if not (error and error["CPF"]) %}hide{% endif %}'></div>
+    </div>
+    <div>
+        <p>Nome</p>
+        <input class='name' name='name' type='text'>
+        <div class='error {% if not (error and error["name"]) %}hide{% endif %}'></div>
     </div>
     <div>
         <p>Ocorrência</p>

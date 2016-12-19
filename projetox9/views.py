@@ -42,6 +42,7 @@ class Views:
 
         if form:
             fields = {"POST": ["CPF",
+                               "name",
                                "occurrence",
                                "date",
                                "description",
@@ -82,7 +83,10 @@ class Views:
                                 lat             = data.location.lat,
                                 lng             = data.location.lng,
                                 place_name      = data.location.place_name)
-       
+            else:
+                session['messages'] = "Campos obrigatórios não preenchidos. Tente novamente"
+                return redirect(url_for('create_occurrence', error=json.dumps(errors)))
+        
         session['messages'] = "Ocorrência não encontrada.</p><br><p> Verifique os dados digitados."
         return redirect(url_for('create_occurrence', error=json.dumps(errors)))
 
@@ -127,16 +131,20 @@ class Views:
         logged, admin = session.get("logged"), session.get("admin")
         if not logged:
             return redirect(url_for("login"))
-        
+
         occurrences = Views.api.get_occurrences()
         employees   = Views.api.get_employees_not_approved(admin=admin)
 
         date_range = Utils.format_date(datetime.now() - timedelta(minutes=Config.current_occurrences_range_minutes))
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> origin/Paulo_Development
         message = session.get('messages')
         session['messages'] = None
-        
-        if message != None:   
+
+        if message != None:
             return render_template('manage.html',
                     admin                  = admin,
                     googlemaps_key         = Config.googlemaps_key,
@@ -151,6 +159,15 @@ class Views:
                     employees              = employees,
                     occurrences            = occurrences,
                     occurrences_date_range = date_range)
+
+    @app.route('/charts')
+    def chats():
+        logged = session.get("logged")
+        if not logged:
+            return redirect(url_for("login"))
+
+        charts_dataset = Views.api.get_charts_dataset()
+        return render_template('charts.html')
 
     @app.route('/approve')
     def approve():
