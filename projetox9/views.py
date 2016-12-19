@@ -147,8 +147,14 @@ class Views:
         if not logged:
             return redirect(url_for("login"))
 
-        charts_dataset = Views.api.get_charts_dataset()
-        return render_template('charts.html')
+        data = Views.api.get_charts_dataset()
+        return render_template('charts.html',
+                    logged=logged,
+                    occurrences_by_status=data["occurrences_by_status"],
+                    occurrences_by_types=data["occurrences_by_types"],
+                    occurrences_by_types_by_status=data["occurrences_by_types_by_status"],
+                    occurrences_timeline_by_types=data["occurrences_timeline_by_types"],
+                    status_timeline=data["status_timeline"])
 
     @app.route('/approve')
     def approve():

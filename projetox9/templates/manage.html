@@ -82,12 +82,12 @@
                 <td>{{oc.protocol_number}}</td>
                 <td>{{oc.CPF | format_CPF}}</td>
                 <td>{{oc.occurrence.name}}</td>
-                <td>{{oc.name | limit_size}}</td>
+                <td title='{{oc.name}}'>{{oc.name | limit_size}}</td>
                 <td>{{oc.date}}</td>
-                <td>{{oc.description | limit_size}}</td>
-                <td>{{oc.location.place_name | limit_size}}</td>
+                <td title='{{oc.description}}'>{{oc.description | limit_size}}</td>
+                <td title='{{oc.location.place_name}}'>{{oc.location.place_name | limit_size}}</td>
                 <td>{{oc.status}}</td>
-                <td>{{(oc.feedback | optional) | limit_size}}</td>
+                <td title='{{oc.feedback | empty}}'>{{(oc.feedback | optional) | limit_size}}</td>
                 <td><a style="outline: none" href="occurrence?protocol={{oc.protocol_number}}&CPF={{oc.CPF}}"><div class='edit'></div></a></td>
             </tr>
             {% endfor %}

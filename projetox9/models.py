@@ -7,7 +7,8 @@ from ..projetox9 import Config
 from .utils import Utils
 
 class Status:
-    NOT_RESOLVED = "Não resolvido"
+    WAITING = "Aguardando resposta"
+    ANSWERED = "Respondido"
     RESOLVED = "Resolvido"
 
 class DB:

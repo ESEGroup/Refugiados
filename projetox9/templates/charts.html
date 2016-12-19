@@ -1,9 +1,9 @@
 {% extends 'menu.html' %}
 {% block header %}
-<title>{{title}}</title>
-<script src="static/js/utils.js"></script>
-<script src="static/js/form.js"></script>
-<link rel='stylesheet' type='text/css' href='static/css/form.css'>
+<title>Gráficos</title>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<link rel='stylesheet' type='text/css' href='static/css/charts.css'>
+
 {% endblock %}
 
 {% block menu %}
@@ -15,4 +15,114 @@
 {% endblock %}
 
 {% block content %}
+<div id="by_status" class='chart'></div>
+<div id="by_types" class='chart'></div>
+<div id="by_types_by_status" class='chart'></div>
+<div id="timeline_by_types" class='chart'></div>
+<div id="status_timeline" class='chart'></div>
+<script>
+google.charts.load('current', {packages: ['corechart']});
+google.charts.setOnLoadCallback(draw);
+
+function draw() {
+    // occurrences_by_status
+    var by_status = JSON.parse('{{(occurrences_by_status | json) | safe}}'),
+        keys = Object.keys(by_status),
+        by_status_list = [keys.fill("")];
+    keys = Object.keys(by_status);
+
+    for (var i=0; i<keys.length;++i) {
+        var s = keys[i],
+            n = by_status[s];
+        by_status_list.push([s, n]);
+    }
+
+    var data = google.visualization.arrayToDataTable(by_status_list);
+
+    var options = {
+        title: "Status das ocorrências",
+        legend: {position:"none"},
+    };
+    var chart = new google.visualization.ColumnChart(document.getElementById("by_status"));
+    chart.draw(data,options);
+
+    // occurrences_by_types
+    var by_types = JSON.parse('{{(occurrences_by_types | json) | safe}}');
+
+    keys = Object.keys(by_types);
+    var by_types_list = [keys.fill("")];
+    keys = Object.keys(by_types);
+
+    for (var i=0; i<keys.length;++i) {
+        var t = keys[i],
+            n = by_types[t];
+        by_types_list.push([t,n]);
+    }
+    data = google.visualization.arrayToDataTable(by_types_list);
+    options.title = "Tipos de ocorrências";
+
+    chart = new google.visualization.ColumnChart(document.getElementById("by_types"));
+    chart.draw(data,options);
+
+    // occurrences_by_types_by_status
+    var by_types_by_status = JSON.parse('{{(occurrences_by_types_by_status | json) | safe}}'),
+        status_keys = Object.keys(by_status);
+        by_types_by_status_list = [["#"].concat(status_keys)];
+    keys = Object.keys(by_types_by_status);
+
+    for (var i=0; i<keys.length;++i) {
+        var t = keys[i],
+            n = by_types_by_status[t],
+            l = [t];
+        for (var x=0; x<status_keys.length;++x)
+            l.push(n[status_keys[x]] || 0);
+        by_types_by_status_list.push(l);
+    }
+    data = google.visualization.arrayToDataTable(by_types_by_status_list);
+    options.title = "Tipos de ocorrência por status";
+    options.legend = {position:'top'};
+
+    chart = new google.visualization.ColumnChart(document.getElementById("by_types_by_status"));
+    chart.draw(data,options);
+
+    // timeline_by_types
+    var timeline_by_types = JSON.parse('{{(occurrences_timeline_by_types | json) | safe}}'),
+        months = Object.keys(timeline_by_types),
+        types = Object.keys(by_types),
+        timeline_list = [["#"].concat(types)];
+
+    for (var i=0; i<months.length;++i) {
+        var m = months[i],
+            t = timeline_by_types[m],
+            l = [m];
+        for (var x=0;x<types.length;++x)
+            l.push(timeline_by_types[m][types[x]] || 0);
+        timeline_list.push(l);
+    }
+    data = google.visualization.arrayToDataTable(timeline_list);
+    options.title = "Ocorrências por tipo ao longo dos meses";
+
+    chart = new google.visualization.LineChart(document.getElementById("timeline_by_types"));
+    chart.draw(data,options);
+
+    // status_timeline
+    var status_timeline = JSON.parse('{{(status_timeline | json) | safe}}'),
+        months = Object.keys(status_timeline),
+        status_timeline_list = [["#"].concat(status_keys)];
+
+    for (var i=0; i<months.length;++i) {
+        var m = months[i],
+            t = status_timeline[m],
+            l = [m];
+        for (var x=0;x<status_keys.length;++x)
+            l.push(status_timeline[m][status_keys[x]] || 0);
+        status_timeline_list.push(l);
+    }
+    data = google.visualization.arrayToDataTable(status_timeline_list);
+    options.title = "Status ao longo dos meses";
+
+    chart = new google.visualization.LineChart(document.getElementById("status_timeline"));
+    chart.draw(data,options);
+}
+</script>
 {% endblock %}
