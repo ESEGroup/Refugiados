@@ -7,26 +7,12 @@
 {% endblock %}
 
 {% block menu %}
-<li><a href="/">Cadastrar ocorrência</a></li>
 {% if logged %}
+<li><a href="/">Cadastrar ocorrência</a></li>
 <li><a href="/manage">Administrar</a></li>
-<li><a href="/charts">Gráficos</a></li>
 <li class='menu_right'><a href="/logout">Logout</a></li>
 {% endif %}
 {% endblock %}
 
 {% block content %}
-<form action='/{{path}}' method="POST">
-    <div>
-        <p>CPF</p>
-        <input id='CPF' class='CPF' name='CPF' type='text'>
-    </div>
-    <div>
-        <p>Senha</p>
-        <input id='password' name='password' type='password'>
-    </div>
-    <div>
-        <input type='submit' value='{{action}}' class='button'>
-    </div>
-</form>
 {% endblock %}

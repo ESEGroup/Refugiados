@@ -163,7 +163,6 @@ class Models:
         def get_one(pk):
             db = DB.connect()
             oc_type = db.occurrence_types.find_one({'_id': ObjectId(pk)})
-
             return Models.OccurrenceType.from_dict(oc_type)
 
         def get_one_or_empty(pk):
