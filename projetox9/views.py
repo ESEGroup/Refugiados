@@ -98,15 +98,23 @@ class Views:
         elif request.method == 'POST' and form.get('CPF') and form.get('password'):
             session['logged'], session['admin'] = Views.api.login(form.get("CPF"),
                                                                   form.get("password"))
-
+            if not session.get('logged'):
+                session['messages'] = "Usuário não cadastrado ou não aprovado. Tente novamente."
             return redirect(url_for('manage'))
-
-        return render_template('sign.html',
-                               title  = "Login",
-                               path   = re.sub(r'^\/','',url_for("login")),
-                               action = "Entrar")
-
-
+        message = session.get('messages')
+        if message == None: 
+            return render_template('sign.html',
+                                   title  = "Login",
+                                   path   = re.sub(r'^\/','',url_for("login")),
+                                   action = "Entrar")
+        else:
+            session['messages'] = None
+            return render_template('sign.html',
+                                   title   = "Login",
+                                   path    = re.sub(r'^\/','',url_for("login")),
+                                   action  = "Entrar",
+                                   message = message)
+    
     @app.route('/signup', methods=['GET', 'POST'])
     def create_account():
         logged, admin = session.get('logged'), session.get('admin')
