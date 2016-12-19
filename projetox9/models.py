@@ -193,7 +193,7 @@ class Models:
             self.occurrence = occurrence
             self.location = Models.Location(lat, lng, place_name)
             self.description = description
-            self.status = status or Status.NOT_RESOLVED
+            self.status = status or Status.WAITING
             self.feedback_date = feedback_date
             self.feedback = feedback
             self.protocol_number = protocol_number or binascii.hexlify(urandom(5)).upper().decode('utf-8')

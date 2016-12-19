@@ -58,6 +58,7 @@
 </div>
 {% endif %}
 
+{% if (occurrences | len) %}
 <div>
     <table>
         <thead>
@@ -97,4 +98,5 @@
 <div>
     <div id="map"></div>
 </div>
+{% endif %}
 {% endblock %}
