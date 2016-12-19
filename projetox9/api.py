@@ -27,11 +27,8 @@ class Api:
     def set_occurrence(self, CPF, name, oc_type_pk, date, description, lat, lng, place_name):
         user = self.get_person_info(Utils.clean_CPF(CPF))
         occurrence_type = self.get_occurrence_type(oc_type_pk)
-        if user.name == "":
-            oc = self.models.Occurrence(user.CPF, name, date, occurrence_type, description, lat, lng, place_name) 
-        else:
-            oc = self.models.Occurrence(user.CPF, user.name, date, occurrence_type, description, lat, lng, place_name)
-        print (oc)
+
+        oc = self.models.Occurrence(user.CPF, name or user.name, date, occurrence_type, description, lat, lng, place_name)
         oc.save()
         return oc
 
@@ -72,6 +69,52 @@ class Api:
 
     def get_status_list(self):
         return [getattr(Status,s) for s in Status.__dict__ if not s.startswith("__")]
+
+    def get_charts_dataset(self):
+        occurrences_list = self.get_occurrences()
+
+        occurrences_by_status = {}
+        occurrences_by_types = {}
+
+        occurrences_by_types_by_status = {}
+
+        occurrences_timeline_by_types = {}
+        status_timeline = {}
+
+        for o in occurrences_list:
+            month = Utils.get_month(o.date)
+            if month not in occurrences_timeline_by_types.keys():
+                occurrences_timeline_by_types[month] = {}
+
+            if month not in status_timeline.keys():
+                status_timeline[month] = {}
+
+            if o.occurrence.name not in occurrences_by_types.keys():
+                occurrences_by_types[o.occurrence.name] = 0
+                occurrences_by_types_by_status[o.occurrence.name] = {}
+            occurrences_by_types[o.occurrence.name] += 1
+
+            if o.occurrence.name not in occurrences_timeline_by_types[month].keys():
+                occurrences_timeline_by_types[month][o.occurrence.name] = 0
+            occurrences_timeline_by_types[month][o.occurrence.name] += 1
+
+            if o.status not in occurrences_by_status.keys():
+                occurrences_by_status[o.status] = 0
+            occurrences_by_status[o.status] += 1
+
+            if o.status not in status_timeline[month].keys():
+                status_timeline[month][o.status] = 0
+            status_timeline[month][o.status] += 1
+
+            if o.status not in occurrences_by_types_by_status[o.occurrence.name].keys():
+                occurrences_by_types_by_status[o.occurrence.name][o.status] = 0
+            occurrences_by_types_by_status[o.occurrence.name][o.status] += 1
+
+        return {"occurrences_by_status":occurrences_by_status,
+                "occurrences_by_types":occurrences_by_types,
+                "occurrences_by_types_by_status":occurrences_by_types_by_status,
+                "occurrences_timeline_by_types":occurrences_timeline_by_types,
+                "status_timeline":status_timeline}
 
     # FakeSiga
     def get_person_info(self, CPF):

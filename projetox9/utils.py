@@ -1,11 +1,20 @@
 import re
 from ..projetox9 import app, Config
 from datetime import datetime
+import json
 
 class Utils:
+    @app.template_filter('json')
+    def to_json(obj):
+        return json.dumps(obj)
+
     @app.template_filter('len')
     def length(list):
         return len(list)
+
+    @app.template_filter('list')
+    def to_list(l):
+        return list(l)
 
     @app.template_filter('bool')
     def bool(b):
@@ -84,3 +93,15 @@ class Utils:
 
     def from_timestamp(date):
         return Utils.format_date(datetime.fromtimestamp(date))
+
+    def get_month(date):
+        return date[3:5]
+
+    @app.template_filter('month_name')
+    def month_name(date):
+        month = Utils.get_month(date)
+        return Config.months_translation[month]
+
+    @app.template_filter('limit_month')
+    def limit_month(month):
+        return month[:Config.short_month_len]
