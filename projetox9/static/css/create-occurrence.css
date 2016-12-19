@@ -3,7 +3,7 @@
 }
 
 #content form > div > input {
-    width: calc(50% - 30px);
+    width: 45%;
 }
 
 #messagebox {
