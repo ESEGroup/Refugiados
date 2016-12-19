@@ -60,4 +60,5 @@
     height: 29px;
     background-image: url("../img/alert.png");
     background-size: contain;
+    text-color: red;
 }
