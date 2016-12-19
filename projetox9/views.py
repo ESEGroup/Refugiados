@@ -136,11 +136,7 @@ class Views:
         employees   = Views.api.get_employees_not_approved(admin=admin)
 
         date_range = Utils.format_date(datetime.now() - timedelta(minutes=Config.current_occurrences_range_minutes))
-<<<<<<< HEAD
         
-=======
-
->>>>>>> origin/Paulo_Development
         message = session.get('messages')
         session['messages'] = None
 
