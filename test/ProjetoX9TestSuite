@@ -9,6 +9,11 @@
 <table id="suiteTable" cellpadding="1" cellspacing="1" border="1" class="selenium"><tbody>
 <tr><td><b>Test Suite</b></td></tr>
 <tr><td><a href="CadastrarOcorrenciaComFakeSiga">CadastrarOcorrenciaComFakeSiga</a></td></tr>
+<tr><td><a href="VisualizarOcorrência">VisualizarOcorrencia</a></td></tr>
+<tr><td><a href="FazerLogin">FazerLogin</a></td></tr>
+<tr><td><a href="ProjetoX9TestSuite">CadastrarUsuarios</a></td></tr>
+<tr><td><a href="GerarRelatórios">GerarRelatorios</a></td></tr>
+<tr><td><a href="AtualizarOcorrencia">AtualizarOcorrencia</a></td></tr>
 </tbody></table>
 </body>
 </html>

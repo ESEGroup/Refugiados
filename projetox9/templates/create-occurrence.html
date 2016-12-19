@@ -21,6 +21,15 @@
 {% endif %}
 {% endblock %}
 
+{% block messagebox %}
+{% if message %}
+<div id="messagebox">
+    <p> {{message | safe}} </p>
+</div>
+{% endif %}
+{% endblock %}
+
+
 {% block content %}
 <form id='check' action='/occurrence' method='GET'>
     <h1>Checar status da ocorrência</h1>
