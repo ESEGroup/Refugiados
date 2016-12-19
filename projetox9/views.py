@@ -32,6 +32,7 @@ class Views:
 
         if form:
             fields = {"POST": ["CPF",
+                               "name",
                                "occurrence",
                                "date",
                                "description",
@@ -72,7 +73,8 @@ class Views:
                                 lat=data.location.lat,
                                 lng=data.location.lng,
                                 place_name=data.location.place_name)
-
+            else:
+                session['messages'] = "Campos obrigatórios não preenchidos. Tente novamente"
         return redirect(url_for('create_occurrence', error=json.dumps(errors)))
 
     @app.route('/login', methods=['GET', 'POST'])
