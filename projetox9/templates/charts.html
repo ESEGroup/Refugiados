@@ -37,14 +37,19 @@ function draw() {
         by_status_list.push([s, n]);
     }
 
-    var data = google.visualization.arrayToDataTable(by_status_list);
-
     var options = {
         title: "Status das ocorrências",
         legend: {position:"none"},
     };
-    var chart = new google.visualization.ColumnChart(document.getElementById("by_status"));
-    chart.draw(data,options);
+
+    var data;
+    var chart;
+    if (by_status_list.length > 1) {
+        data = google.visualization.arrayToDataTable(by_status_list);
+
+        chart = new google.visualization.ColumnChart(document.getElementById("by_status"));
+        chart.draw(data,options);
+    }
 
     // occurrences_by_types
     var by_types = JSON.parse('{{(occurrences_by_types | json) | safe}}');
@@ -58,11 +63,15 @@ function draw() {
             n = by_types[t];
         by_types_list.push([t,n]);
     }
-    data = google.visualization.arrayToDataTable(by_types_list);
+
     options.title = "Tipos de ocorrências";
 
-    chart = new google.visualization.ColumnChart(document.getElementById("by_types"));
-    chart.draw(data,options);
+    if (by_types_list.length > 1) {
+        data = google.visualization.arrayToDataTable(by_types_list);
+
+        chart = new google.visualization.ColumnChart(document.getElementById("by_types"));
+        chart.draw(data,options);
+    }
 
     // occurrences_by_types_by_status
     var by_types_by_status = JSON.parse('{{(occurrences_by_types_by_status | json) | safe}}'),
@@ -78,12 +87,16 @@ function draw() {
             l.push(n[status_keys[x]] || 0);
         by_types_by_status_list.push(l);
     }
-    data = google.visualization.arrayToDataTable(by_types_by_status_list);
+
     options.title = "Tipos de ocorrência por status";
     options.legend = {position:'top'};
 
-    chart = new google.visualization.ColumnChart(document.getElementById("by_types_by_status"));
-    chart.draw(data,options);
+    if (by_types_by_status_list.length > 1) { 
+        data = google.visualization.arrayToDataTable(by_types_by_status_list);
+
+        chart = new google.visualization.ColumnChart(document.getElementById("by_types_by_status"));
+        chart.draw(data,options);
+    }
 
     // timeline_by_types
     var timeline_by_types = JSON.parse('{{(occurrences_timeline_by_types | json) | safe}}'),
@@ -99,11 +112,14 @@ function draw() {
             l.push(timeline_by_types[m][types[x]] || 0);
         timeline_list.push(l);
     }
-    data = google.visualization.arrayToDataTable(timeline_list);
-    options.title = "Ocorrências por tipo ao longo dos meses";
 
-    chart = new google.visualization.LineChart(document.getElementById("timeline_by_types"));
-    chart.draw(data,options);
+    options.title = "Ocorrências por tipo ao longo dos meses";
+    if (timeline_list.length > 1) {
+        data = google.visualization.arrayToDataTable(timeline_list);
+
+        chart = new google.visualization.LineChart(document.getElementById("timeline_by_types"));
+        chart.draw(data,options);
+    }
 
     // status_timeline
     var status_timeline = JSON.parse('{{(status_timeline | json) | safe}}'),
@@ -118,11 +134,14 @@ function draw() {
             l.push(status_timeline[m][status_keys[x]] || 0);
         status_timeline_list.push(l);
     }
-    data = google.visualization.arrayToDataTable(status_timeline_list);
+    
     options.title = "Status ao longo dos meses";
+    if (status_timeline_list.length > 1) {
+        data = google.visualization.arrayToDataTable(status_timeline_list);
 
-    chart = new google.visualization.LineChart(document.getElementById("status_timeline"));
-    chart.draw(data,options);
+        chart = new google.visualization.LineChart(document.getElementById("status_timeline"));
+        chart.draw(data,options);
+    }
 }
 </script>
 {% endblock %}

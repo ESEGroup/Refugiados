@@ -8,19 +8,6 @@ class Utils:
     def to_json(obj):
         return json.dumps(obj)
 
-    @app.template_filter('safe_quotation_marks')
-    def safe_quotation_marks(txt):
-        return re.sub(r"&#39;",'"',txt)
-
-    @app.template_filter('normalize')
-    def normalize(l):
-        m = sum(l)
-        return [n/m for n in l]
-
-    @app.template_filter('max')
-    def get_max(l):
-        return max(l)
-
     @app.template_filter('len')
     def length(list):
         return len(list)
