@@ -28,7 +28,7 @@ class Api:
         user = self.get_person_info(Utils.clean_CPF(CPF))
         occurrence_type = self.get_occurrence_type(oc_type_pk)
 
-        oc = self.models.Occurrence(user.CPF, name or user.name, date, occurrence_type, description, lat, lng, place_name)
+        oc = self.models.Occurrence(user.CPF, user.name or name, date, occurrence_type, description, lat, lng, place_name)
         oc.save()
         return oc
 
