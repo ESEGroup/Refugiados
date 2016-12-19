@@ -24,11 +24,15 @@ class Api:
         if not admin: return
         return self.models.Employee.get_all({"is_approved":False})
 
-    def set_occurrence(self, CPF, oc_type_pk, date, description, lat, lng, place_name):
+    def set_occurrence(self, CPF, name, oc_type_pk, date, description, lat, lng, place_name):
         user = self.get_person_info(Utils.clean_CPF(CPF))
         occurrence_type = self.get_occurrence_type(oc_type_pk)
-
-        oc = self.models.Occurrence(user.CPF, user.name, date, occurrence_type, description, lat, lng, place_name)
+        
+        if user.name == "" or " ":
+            oc = self.models.Occurrence(user.CPF, name, date, occurrence_type, description, lat, lng, place_name) 
+        else:
+            oc = self.models.Occurrence(user.CPF, user.name, date, occurrence_type, description, lat, lng, place_name)
+        
         oc.save()
         return oc
 

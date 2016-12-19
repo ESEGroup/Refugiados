@@ -32,6 +32,7 @@ class Views:
 
         if form:
             fields = {"POST": ["CPF",
+                               "name",
                                "occurrence",
                                "date",
                                "description",

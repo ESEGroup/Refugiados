@@ -45,6 +45,11 @@
         <div class='error {% if not (error and error["CPF"]) %}hide{% endif %}'></div>
     </div>
     <div>
+        <p>Nome</p>
+        <input class='name' name='name' type='text'>
+        <div class='error {% if not (error and error["name"]) %}hide{% endif %}'></div>
+    </div>
+    <div>
         <p>Ocorrência</p>
         <select class='occurrence' name='occurrence'>
             {% for type in occurrence_types %}
