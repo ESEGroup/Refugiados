@@ -17,7 +17,7 @@ class Views:
         error        = json.loads(request.args.get("error") or "{}")
 
         occurrence_types = Views.api.get_occurrence_types()
-        
+
         message             = session.get('messages')
         session['messages'] = None
         if message != None:
@@ -86,7 +86,7 @@ class Views:
             else:
                 session['messages'] = "Campos obrigatórios não preenchidos. Tente novamente"
                 return redirect(url_for('create_occurrence', error=json.dumps(errors)))
-        
+
         session['messages'] = "Ocorrência não encontrada.</p><br><p> Verifique os dados digitados."
         return redirect(url_for('create_occurrence', error=json.dumps(errors)))
 
@@ -136,7 +136,7 @@ class Views:
         employees   = Views.api.get_employees_not_approved(admin=admin)
 
         date_range = Utils.format_date(datetime.now() - timedelta(minutes=Config.current_occurrences_range_minutes))
-        
+
         message = session.get('messages')
         session['messages'] = None
 
