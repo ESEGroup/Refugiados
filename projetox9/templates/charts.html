@@ -28,7 +28,7 @@ function draw() {
     // occurrences_by_status
     var by_status = JSON.parse('{{(occurrences_by_status | json) | safe}}'),
         keys = Object.keys(by_status),
-        by_status_list = [keys.fill("")];
+        by_status_list = [["#"].concat(keys).fill("")];
     keys = Object.keys(by_status);
 
     for (var i=0; i<keys.length;++i) {
@@ -55,7 +55,7 @@ function draw() {
     var by_types = JSON.parse('{{(occurrences_by_types | json) | safe}}');
 
     keys = Object.keys(by_types);
-    var by_types_list = [keys.fill("")];
+    var by_types_list = [["#"].concat(keys).fill("")];
     keys = Object.keys(by_types);
 
     for (var i=0; i<keys.length;++i) {
