@@ -115,7 +115,7 @@ class Views:
                                    path    = re.sub(r'^\/','',url_for("login")),
                                    action  = "Entrar",
                                    message = message)
-    
+
     @app.route('/signup', methods=['GET', 'POST'])
     def create_account():
         logged, admin = session.get('logged'), session.get('admin')
@@ -178,7 +178,9 @@ class Views:
                     occurrences_by_types=data["occurrences_by_types"],
                     occurrences_by_types_by_status=data["occurrences_by_types_by_status"],
                     occurrences_timeline_by_types=data["occurrences_timeline_by_types"],
-                    status_timeline=data["status_timeline"])
+                    status_timeline=data["status_timeline"],
+                    status_list=data["status_list"],
+                    types=data["types"])
 
     @app.route('/approve')
     def approve():

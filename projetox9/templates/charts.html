@@ -26,43 +26,35 @@ google.charts.setOnLoadCallback(draw);
 
 function draw() {
     // occurrences_by_status
-    var by_status = JSON.parse('{{(occurrences_by_status | json) | safe}}'),
-        keys = Object.keys(by_status),
-        by_status_list = [["#"].concat(keys).fill("")];
-    keys = Object.keys(by_status);
+    var status_list = JSON.parse('{{(status_list | json) | safe}}'),
+        types = JSON.parse('{{(types | json) | safe}}'),
+        by_status = JSON.parse('{{(occurrences_by_status | json) | safe}}'),
+        by_status_list = [["",""]], // key, value
+        data,
+        chart,
+        options = {
+            title: "Status das ocorrências",
+            legend: {position:"none"},
+        };
 
-    for (var i=0; i<keys.length;++i) {
-        var s = keys[i],
-            n = by_status[s];
-        by_status_list.push([s, n]);
-    }
+    for (var i=0; i<status_list.length;++i)
+        by_status_list.push([status_list[i], by_status[status_list[i]]]);
 
-    var options = {
-        title: "Status das ocorrências",
-        legend: {position:"none"},
-    };
-
-    var data;
-    var chart;
     if (by_status_list.length > 1) {
         data = google.visualization.arrayToDataTable(by_status_list);
 
         chart = new google.visualization.ColumnChart(document.getElementById("by_status"));
         chart.draw(data,options);
+    } else {
+        document.getElementById("by_status").className = "hide";
     }
 
     // occurrences_by_types
-    var by_types = JSON.parse('{{(occurrences_by_types | json) | safe}}');
+    var by_types = JSON.parse('{{(occurrences_by_types | json) | safe}}'),
+        by_types_list = [["",""]]; // key, value
 
-    keys = Object.keys(by_types);
-    var by_types_list = [["#"].concat(keys).fill("")];
-    keys = Object.keys(by_types);
-
-    for (var i=0; i<keys.length;++i) {
-        var t = keys[i],
-            n = by_types[t];
-        by_types_list.push([t,n]);
-    }
+    for (var i=0; i<types.length;++i)
+        by_types_list.push([types[i],by_types[types[i]]]);
 
     options.title = "Tipos de ocorrências";
 
@@ -71,20 +63,21 @@ function draw() {
 
         chart = new google.visualization.ColumnChart(document.getElementById("by_types"));
         chart.draw(data,options);
+    } else {
+        document.getElementById("by_types").className = "hide";
     }
 
     // occurrences_by_types_by_status
     var by_types_by_status = JSON.parse('{{(occurrences_by_types_by_status | json) | safe}}'),
-        status_keys = Object.keys(by_status);
-        by_types_by_status_list = [["#"].concat(status_keys)];
-    keys = Object.keys(by_types_by_status);
+        by_types_by_status_list = [["#"].concat(status_list)];
 
-    for (var i=0; i<keys.length;++i) {
-        var t = keys[i],
-            n = by_types_by_status[t],
+    for (var i=0; i<types.length;++i) {
+        var t = types[i],
+            n = by_types_by_status[t] || {},
             l = [t];
-        for (var x=0; x<status_keys.length;++x)
-            l.push(n[status_keys[x]] || 0);
+
+        for (var x=0; x<status_list.length;++x)
+            l.push(n[status_list[x]] || 0);
         by_types_by_status_list.push(l);
     }
 
@@ -96,12 +89,13 @@ function draw() {
 
         chart = new google.visualization.ColumnChart(document.getElementById("by_types_by_status"));
         chart.draw(data,options);
+    } else {
+        document.getElementById("by_types_by_status").className = "hide";
     }
 
     // timeline_by_types
     var timeline_by_types = JSON.parse('{{(occurrences_timeline_by_types | json) | safe}}'),
         months = Object.keys(timeline_by_types),
-        types = Object.keys(by_types),
         timeline_list = [["#"].concat(types)];
 
     for (var i=0; i<months.length;++i) {
@@ -119,19 +113,21 @@ function draw() {
 
         chart = new google.visualization.LineChart(document.getElementById("timeline_by_types"));
         chart.draw(data,options);
+    } else {
+        document.getElementById("timeline_by_types").className = "hide";
     }
 
     // status_timeline
     var status_timeline = JSON.parse('{{(status_timeline | json) | safe}}'),
         months = Object.keys(status_timeline),
-        status_timeline_list = [["#"].concat(status_keys)];
+        status_timeline_list = [["#"].concat(status_list)];
 
     for (var i=0; i<months.length;++i) {
         var m = months[i],
             t = status_timeline[m],
             l = [m];
-        for (var x=0;x<status_keys.length;++x)
-            l.push(status_timeline[m][status_keys[x]] || 0);
+        for (var x=0;x<status_list.length;++x)
+            l.push(status_timeline[m][status_list[x]] || 0);
         status_timeline_list.push(l);
     }
     
@@ -141,6 +137,8 @@ function draw() {
 
         chart = new google.visualization.LineChart(document.getElementById("status_timeline"));
         chart.draw(data,options);
+    } else {
+        document.getElementById("status_timeline").className = "hide";
     }
 }
 </script>

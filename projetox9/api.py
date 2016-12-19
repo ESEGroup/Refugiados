@@ -81,6 +81,12 @@ class Api:
         occurrences_timeline_by_types = {}
         status_timeline = {}
 
+        status_list = self.get_status_list()
+        types_obj = self.get_occurrence_types()
+        types = []
+        for t in types_obj:
+            types += [t.name]
+
         for o in occurrences_list:
             month = Utils.get_month(o.date)
             if month not in occurrences_timeline_by_types.keys():
@@ -114,7 +120,9 @@ class Api:
                 "occurrences_by_types":occurrences_by_types,
                 "occurrences_by_types_by_status":occurrences_by_types_by_status,
                 "occurrences_timeline_by_types":occurrences_timeline_by_types,
-                "status_timeline":status_timeline}
+                "status_timeline":status_timeline,
+                "status_list":status_list,
+                "types":types}
 
     # FakeSiga
     def get_person_info(self, CPF):

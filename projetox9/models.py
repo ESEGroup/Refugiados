@@ -152,11 +152,11 @@ class Models:
             self.name = name
 
         def to_dict(self):
-            return {"_id":self.pk, "name":self.name}
+            return {"_id":str(self.pk), "name":self.name}
 
         def from_dict(d):
             if not d: return None
-            return Models.OccurrenceType(d["_id"], d["name"])
+            return Models.OccurrenceType(ObjectId(d["_id"]), d["name"])
 
         def empty():
             return Models.OccurrenceType("","")
