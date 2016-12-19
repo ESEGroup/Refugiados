@@ -27,12 +27,11 @@ class Api:
     def set_occurrence(self, CPF, name, oc_type_pk, date, description, lat, lng, place_name):
         user = self.get_person_info(Utils.clean_CPF(CPF))
         occurrence_type = self.get_occurrence_type(oc_type_pk)
-        
-        if user.name == "" or " ":
+        if user.name == "":
             oc = self.models.Occurrence(user.CPF, name, date, occurrence_type, description, lat, lng, place_name) 
         else:
             oc = self.models.Occurrence(user.CPF, user.name, date, occurrence_type, description, lat, lng, place_name)
-        
+        print (oc)
         oc.save()
         return oc
 
