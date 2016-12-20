@@ -38,10 +38,9 @@
 </tr>
 <tr>
 	<td>assertText</td>
-	<td>//div[@id='content']/div[2]/table/tbody/tr/td[9]</td>
+	<td>//div[@id='content']/div/table/tbody/tr/td[9]</td>
 	<td>Resolvido</td>
 </tr>
-
 </tbody></table>
 </body>
 </html>

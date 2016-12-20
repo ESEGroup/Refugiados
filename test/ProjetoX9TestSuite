@@ -11,9 +11,8 @@
 <tr><td><a href="CadastrarOcorrenciaComFakeSiga">CadastrarOcorrenciaComFakeSiga</a></td></tr>
 <tr><td><a href="VisualizarOcorrência">VisualizarOcorrencia</a></td></tr>
 <tr><td><a href="FazerLogin">FazerLogin</a></td></tr>
-<tr><td><a href="ProjetoX9TestSuite">CadastrarUsuarios</a></td></tr>
-<tr><td><a href="GerarRelatórios">GerarRelatorios</a></td></tr>
 <tr><td><a href="AtualizarOcorrencia">AtualizarOcorrencia</a></td></tr>
+<tr><td><a href="GerarRelatórios">GerarRelatorios</a></td></tr>
 </tbody></table>
 </body>
 </html>
