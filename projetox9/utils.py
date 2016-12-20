@@ -96,12 +96,3 @@ class Utils:
 
     def get_month(date):
         return date[3:5]
-
-    @app.template_filter('month_name')
-    def month_name(date):
-        month = Utils.get_month(date)
-        return Config.months_translation[month]
-
-    @app.template_filter('limit_month')
-    def limit_month(month):
-        return month[:Config.short_month_len]

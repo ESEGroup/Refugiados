@@ -174,6 +174,7 @@ class Views:
         data = Views.api.get_charts_dataset()
         return render_template('charts.html',
                     logged=logged,
+                    months_dict=Config.months_translation,
                     occurrences_by_status=data["occurrences_by_status"],
                     occurrences_by_types=data["occurrences_by_types"],
                     occurrences_by_types_by_status=data["occurrences_by_types_by_status"],

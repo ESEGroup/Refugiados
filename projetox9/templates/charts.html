@@ -28,6 +28,7 @@ function draw() {
     // occurrences_by_status
     var status_list = JSON.parse('{{(status_list | json) | safe}}'),
         types = JSON.parse('{{(types | json) | safe}}'),
+        months_dict = JSON.parse('{{(months_dict | json) | safe}}'),
         by_status = JSON.parse('{{(occurrences_by_status | json) | safe}}'),
         by_status_list = [["",""]], // key, value
         data,
@@ -101,7 +102,7 @@ function draw() {
     for (var i=0; i<months.length;++i) {
         var m = months[i],
             t = timeline_by_types[m],
-            l = [m];
+            l = [months_dict[m]];
         for (var x=0;x<types.length;++x)
             l.push(timeline_by_types[m][types[x]] || 0);
         timeline_list.push(l);
@@ -125,7 +126,7 @@ function draw() {
     for (var i=0; i<months.length;++i) {
         var m = months[i],
             t = status_timeline[m],
-            l = [m];
+            l = [months_dict[m]];
         for (var x=0;x<status_list.length;++x)
             l.push(status_timeline[m][status_list[x]] || 0);
         status_timeline_list.push(l);
