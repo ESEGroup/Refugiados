@@ -88,6 +88,7 @@ class Utils:
     def format_date(value):
         return datetime.strftime(value, "%d/%m/%Y %H:%M")
 
+    @app.template_filter('to_timestamp')
     def to_timestamp(date):
         return Utils.to_date(date).timestamp()
 
