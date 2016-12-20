@@ -20,18 +20,12 @@ class Views:
 
         message             = session.get('messages')
         session['messages'] = None
-        if message != None:
-            return render_template('create-occurrence.html',
-                   googlemaps_key   = Config.googlemaps_key,
-                   error            = error,
-                   logged           = logged,
-                   occurrence_types = occurrence_types,
-                   message          = message)
 
         return render_template('create-occurrence.html',
                googlemaps_key   = Config.googlemaps_key,
                error            = error,
                logged           = logged,
+               message          = message,
                occurrence_types = occurrence_types)
 
     @app.route('/occurrence', methods=['GET', 'POST'])
@@ -55,7 +49,7 @@ class Views:
 
             # Validate form
             errors = { field: len(form.get(field,"")) == 0 for field in fields[request.method]}
-            errors["descricao"] = False
+            errors["description"] = False
             errors["CPF"] = not Utils.is_CPF_valid(form.get("CPF"))
 
             status_list = Views.api.get_status_list()
@@ -103,18 +97,13 @@ class Views:
                 session['messages'] = "Usuário não cadastrado ou não aprovado. Tente novamente."
             return redirect(url_for('manage'))
         message = session.get('messages')
-        if message == None: 
-            return render_template('sign.html',
-                                   title  = "Login",
-                                   path   = re.sub(r'^\/','',url_for("login")),
-                                   action = "Entrar")
-        else:
-            session['messages'] = None
-            return render_template('sign.html',
-                                   title   = "Login",
-                                   path    = re.sub(r'^\/','',url_for("login")),
-                                   action  = "Entrar",
-                                   message = message)
+        session['messages'] = None
+
+        return render_template('sign.html',
+                               title   = "Login",
+                               path    = re.sub(r'^\/','',url_for("login")),
+                               action  = "Entrar",
+                               message = message)
 
     @app.route('/signup', methods=['GET', 'POST'])
     def create_account():
@@ -144,26 +133,20 @@ class Views:
         occurrences = Views.api.get_occurrences()
         employees   = Views.api.get_employees_not_approved(admin=admin)
 
-        date_range = Utils.format_date(datetime.now() - timedelta(minutes=Config.current_occurrences_range_minutes))
+        date_now = Utils.format_date(datetime.now() - timedelta(hours=2))
+        date_range = 60*Config.current_occurrences_range_minutes
 
         message = session.get('messages')
         session['messages'] = None
-
-        if message != None:
-            return render_template('manage.html',
-                    admin                  = admin,
-                    googlemaps_key         = Config.googlemaps_key,
-                    employees              = employees,
-                    occurrences            = occurrences,
-                    occurrences_date_range = date_range,
-                    message                = message)
 
         return render_template('manage.html',
                     admin                  = admin,
                     googlemaps_key         = Config.googlemaps_key,
                     employees              = employees,
                     occurrences            = occurrences,
-                    occurrences_date_range = date_range)
+                    date_now               = date_now,
+                    occurrences_date_range = date_range,
+                    message                = message)
 
     @app.route('/charts')
     def chats():

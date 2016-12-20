@@ -79,7 +79,7 @@
         <tbody>
             {% for oc in occurrences %}
             <tr>
-                <td>{% if (oc.date | to_date) >= (occurrences_date_range | to_date) %}<div class='alert' title='Ocorrendo agora!'></div>{% endif %}</td>
+                <td>{% if ((date_now | to_timestamp) - (oc.date | to_timestamp)) <= (occurrences_date_range) %}<div class='alert' title='Ocorrendo agora!'></div>{% endif %}</td>
                 <td>{{oc.protocol_number}}</td>
                 <td>{{oc.CPF | format_CPF}}</td>
                 <td>{{oc.occurrence.name}}</td>
