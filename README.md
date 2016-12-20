@@ -15,7 +15,3 @@ Renomeie config.py.example para config.py e configure corretamente com as inform
 Linux:
 
 `env FLASK_APP=projetox9/server.py flask run`
-    
-Windows:
-
-`export FLASK_APP=projetox9/server.py flask run`
