@@ -7,7 +7,8 @@ from ..projetox9 import Config
 from .utils import Utils
 
 class Status:
-    NOT_RESOLVED = "Não resolvido"
+    WAITING = "Aguardando resposta"
+    ANSWERED = "Respondido"
     RESOLVED = "Resolvido"
 
 class DB:
@@ -151,11 +152,11 @@ class Models:
             self.name = name
 
         def to_dict(self):
-            return {"_id":self.pk, "name":self.name}
+            return {"_id":str(self.pk), "name":self.name}
 
         def from_dict(d):
             if not d: return None
-            return Models.OccurrenceType(d["_id"], d["name"])
+            return Models.OccurrenceType(ObjectId(d["_id"]), d["name"])
 
         def empty():
             return Models.OccurrenceType("","")
@@ -192,7 +193,7 @@ class Models:
             self.occurrence = occurrence
             self.location = Models.Location(lat, lng, place_name)
             self.description = description
-            self.status = status or Status.NOT_RESOLVED
+            self.status = status or Status.WAITING
             self.feedback_date = feedback_date
             self.feedback = feedback
             self.protocol_number = protocol_number or binascii.hexlify(urandom(5)).upper().decode('utf-8')

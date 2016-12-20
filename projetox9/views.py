@@ -17,7 +17,7 @@ class Views:
         error        = json.loads(request.args.get("error") or "{}")
 
         occurrence_types = Views.api.get_occurrence_types()
-        
+
         message             = session.get('messages')
         session['messages'] = None
         if message != None:
@@ -54,7 +54,8 @@ class Views:
                      }
 
             # Validate form
-            errors = { field: len(form.get(field,"")) == 0 for field in fields[request.method]}
+            errors = { field: len(form.get(field,"")) == 0 for field in fields[request.method]
+                        if field != "description"}
             errors["CPF"] = not Utils.is_CPF_valid(form.get("CPF"))
 
             status_list = Views.api.get_status_list()
@@ -86,7 +87,7 @@ class Views:
             else:
                 session['messages'] = "Campos obrigatórios não preenchidos. Tente novamente"
                 return redirect(url_for('create_occurrence', error=json.dumps(errors)))
-        
+
         session['messages'] = "Ocorrência não encontrada.</p><br><p> Verifique os dados digitados."
         return redirect(url_for('create_occurrence', error=json.dumps(errors)))
 
@@ -98,14 +99,22 @@ class Views:
         elif request.method == 'POST' and form.get('CPF') and form.get('password'):
             session['logged'], session['admin'] = Views.api.login(form.get("CPF"),
                                                                   form.get("password"))
-
+            if not session.get('logged'):
+                session['messages'] = "Usuário não cadastrado ou não aprovado. Tente novamente."
             return redirect(url_for('manage'))
-
-        return render_template('sign.html',
-                               title  = "Login",
-                               path   = re.sub(r'^\/','',url_for("login")),
-                               action = "Entrar")
-
+        message = session.get('messages')
+        if message == None: 
+            return render_template('sign.html',
+                                   title  = "Login",
+                                   path   = re.sub(r'^\/','',url_for("login")),
+                                   action = "Entrar")
+        else:
+            session['messages'] = None
+            return render_template('sign.html',
+                                   title   = "Login",
+                                   path    = re.sub(r'^\/','',url_for("login")),
+                                   action  = "Entrar",
+                                   message = message)
 
     @app.route('/signup', methods=['GET', 'POST'])
     def create_account():
@@ -136,7 +145,7 @@ class Views:
         employees   = Views.api.get_employees_not_approved(admin=admin)
 
         date_range = Utils.format_date(datetime.now() - timedelta(minutes=Config.current_occurrences_range_minutes))
-        
+
         message = session.get('messages')
         session['messages'] = None
 
@@ -162,8 +171,17 @@ class Views:
         if not logged:
             return redirect(url_for("login"))
 
-        charts_dataset = Views.api.get_charts_dataset()
-        return render_template('charts.html')
+        data = Views.api.get_charts_dataset()
+        return render_template('charts.html',
+                    logged=logged,
+                    months_dict=Config.months_translation,
+                    occurrences_by_status=data["occurrences_by_status"],
+                    occurrences_by_types=data["occurrences_by_types"],
+                    occurrences_by_types_by_status=data["occurrences_by_types_by_status"],
+                    occurrences_timeline_by_types=data["occurrences_timeline_by_types"],
+                    status_timeline=data["status_timeline"],
+                    status_list=data["status_list"],
+                    types=data["types"])
 
     @app.route('/approve')
     def approve():

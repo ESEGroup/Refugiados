@@ -15,6 +15,14 @@
 {% endif %}
 {% endblock %}
 
+{% block messagebox %}
+{% if message %}
+<div id="messagebox">
+    <p> {{message | safe}}</p>
+</div>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <form action='/{{path}}' method="POST">
     <div>
