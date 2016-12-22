@@ -15,3 +15,7 @@ Renomeie config.py.example para config.py e configure corretamente com as inform
 Linux:
 
 `env FLASK_APP=projetox9/server.py flask run`
+
+### Para acessar o sistema
+
+http://ec2-52-67-192-182.sa-east-1.compute.amazonaws.com/
