@@ -49,6 +49,7 @@ class Views:
 
             # Validate form
             errors = { field: len(form.get(field,"")) == 0 for field in fields[request.method]}
+            errors["name"] = False
             errors["description"] = False
             errors["CPF"] = not Utils.is_CPF_valid(form.get("CPF"))
 
